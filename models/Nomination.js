@@ -1,10 +1,24 @@
 import mongoose from 'mongoose';
 
 const nominationSchema = new mongoose.Schema({
-  awardType: { type: String, required: true, enum: ['International', 'National', 'Shikhar'] },
-  nominationType: { type: String, required: true, enum: ['Self', 'Other'] },
-  fullName: { type: String, required: true },
-  gender: { type: String, required: true, enum: ['male', 'female', 'other'] },
+  awardType: { 
+    type: String, 
+    required: true, 
+    enum: ['International', 'National', 'Shikhar'] 
+  },
+  nominationType: { 
+    type: String, 
+    required: true, 
+    enum: ['Self', 'Other', 'Institution'] 
+  },
+  firstName: { type: String, required: true },
+  middleName: { type: String },
+  lastName: { type: String, required: true },
+  gender: { 
+    type: String, 
+    required: true, 
+    enum: ['male', 'female', 'other'] 
+  },
   dateOfBirth: { type: Date, required: true },
   nationality: { type: String, required: true },
   mobileNumber: { type: String, required: true },
@@ -12,42 +26,46 @@ const nominationSchema = new mongoose.Schema({
   emailId: { type: String, required: true },
   address: { type: String, required: true },
   city: { type: String, required: true },
-  pincode: { type: Number, required: true },
+  district: { type: String },
+  pincode: { type: String, required: true },
   state: { type: String, required: true },
   country: { type: String, required: true },
   preferredLanguage: { type: String, required: true },
   isPreferredLanguageOther: { type: Boolean, required: true, default: false },
   occupationDesignation: { type: String },
-  organizationAffiliation: { type: String },
+  workAffiliationType: { 
+    type: String, 
+    required: true, 
+    enum: ['Individual', 'Organisation'] 
+  },
+  organizationName: { type: String },
   categoryDomain: { type: String, required: true },
   isCategoryDomainOther: { type: Boolean, required: true, default: false },
   fieldOfExcellence: { type: String, required: true },
-  yearsOfWork: { type: Number, required: true },
+  experienceYears: { 
+    type: Number, 
+    required: true, 
+    min: 1, 
+    max: 80 
+  },
   workDescription: { type: String },
-  keyAchievements: { type: String },
-  awardsReceived: { type: String },
+  keySuccesses: [{ type: String }],
+  awardsReceivedList: [{ type: String }],
   impactLevel: { type: String },
   beneficiariesCount: { type: Number },
   innovationDescription: { type: String },
-  countriesOfImpact: { type: String },
-  whyDeservingInternational: { type: String },
-  statesImpacted: { type: String },
-  whyDeservingNational: { type: String },
-  lifetimeContributionYears: { type: Number },
-  top3MajorContributions: { type: String },
-  leadershipRoles: { type: String },
-  whyDeservingShikhar: { type: String },
+  mainBasisForRespect: { type: String, required: true },
   documents: {
-    photograph: { type: String, required: true }, 
+    photograph: { type: String }, 
     proofOfWork: [{ type: String, required: true }], 
     recommendationLetter: { type: String },
     mediaCoverage: { type: String },
-    awardsCertificates: { type: String },
-    additionalDocuments: { type: String }
+    awardsCertificates: { type: String }
   },
   nominator: {
-    name: { type: String },
-    relationWithNominee: { type: String },
+    firstName: { type: String },
+    middleName: { type: String },
+    lastName: { type: String },
     mobile: { type: String },
     email: { type: String },
     address: { type: String },
@@ -55,6 +73,6 @@ const nominationSchema = new mongoose.Schema({
   },
   consentCheckbox: { type: Boolean, required: true },
   digitalSignature: { type: String, required: true },
-}, { timestamps: true }); 
+}, { timestamps: true });
 
 export default mongoose.models.Nomination || mongoose.model('Nomination', nominationSchema);

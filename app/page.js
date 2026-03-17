@@ -1,127 +1,34 @@
 "use client";
 
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
-/* ─── Ornament divider ─────────────────────────────────────────────────────── */
-const Ornament = ({ className = "" }) => (
-  <div className={`flex items-center gap-3 ${className}`}>
-    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-300" />
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-      <path d="M10 2L12.2 7.8H18.3L13.5 11.4L15.7 17.2L10 13.5L4.3 17.2L6.5 11.4L1.7 7.8H7.8Z" fill="#b5820a" opacity="0.7" />
-    </svg>
-    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-300" />
-  </div>
-);
-
-/* ─── Section Header ───────────────────────────────────────────────────────── */
-const SectionHeader = ({ eyebrow, title, subtitle }) => (
-  <div className="text-center mb-14">
-    {eyebrow && <p className="text-amber-700 text-xs font-bold uppercase tracking-[0.3em] mb-3">{eyebrow}</p>}
-    <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-4" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{title}</h2>
-    <Ornament className="max-w-xs mx-auto" />
-    {subtitle && <p className="text-stone-500 mt-5 max-w-2xl mx-auto text-base leading-relaxed">{subtitle}</p>}
-  </div>
-);
-
-/* ─── Award Card ───────────────────────────────────────────────────────────── */
-const AwardCard = ({ tier, title, amount, amountSuffix, description, accentClass, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6, delay }}
-    className={`group relative bg-white rounded-2xl border-2 ${accentClass} p-8 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
-  >
-    <span className="inline-block text-[10px] font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 mb-5">
-      {tier}
-    </span>
-    <h3 className="text-2xl font-bold text-stone-900 mb-3" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{title}</h3>
-    <div className="text-4xl font-bold text-amber-800 mb-1" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
-      {amount}
-      {amountSuffix && <span className="text-lg font-normal text-stone-400 ml-2">{amountSuffix}</span>}
-    </div>
-    <p className="text-stone-500 text-sm leading-relaxed mt-4 mb-8">{description}</p>
-    <Link href="/nominate"
-      className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-700 group-hover:gap-3 transition-all">
-      Nominate Now
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-      </svg>
-    </Link>
-  </motion.div>
-);
-
-/* ─── YouTube Video Card ──────────────────────────────────────────────────── */
-const VideoCard = ({ video, index }) => (
-  <motion.a
-    href={video.link}
-    target="_blank"
-    rel="noopener noreferrer"
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay: index * 0.08 }}
-    className="group block bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
-  >
-    <div className="relative aspect-video bg-stone-100 overflow-hidden">
-      <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-          <svg className="w-5 h-5 text-red-600 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
+const VideoCard = ({ video }) => (
+  <a href={video.link} target="_blank" rel="noopener noreferrer" className="vid-card">
+    <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', background: '#f0e8d0' }}>
+      <img src={video.thumbnail} alt={video.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', display: 'block' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.18)', transition: 'background 0.3s' }} />
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="play-btn" style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }}>
+          <svg style={{ width: 18, height: 18, color: '#b8700a', marginLeft: 3 }} fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
         </div>
       </div>
     </div>
-    <div className="p-4">
-      <p className="text-stone-800 text-sm font-semibold leading-snug line-clamp-2 group-hover:text-amber-800 transition-colors">{video.title}</p>
+    <div style={{ padding: '18px 20px 20px', background: '#fff' }}>
+      <p style={{ color: '#2a1f0a', fontSize: 13.5, fontWeight: 500, lineHeight: 1.55, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontFamily: "'Libre Baskerville', serif" }}>{video.title}</p>
       {video.pubDate && (
-        <p className="text-stone-400 text-xs mt-2">{new Date(video.pubDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+        <p style={{ color: '#b8700a', fontSize: 11, marginTop: 8, fontFamily: "'Mulish', sans-serif", fontWeight: 500, letterSpacing: '0.05em' }}>
+          {new Date(video.pubDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </p>
       )}
     </div>
-  </motion.a>
+  </a>
 );
 
-/* ─── IG Post Card ─────────────────────────────────────────────────────────── */
-const IGPostCard = ({ post, index }) => (
-  <motion.a
-    href={post.permalink}
-    target="_blank"
-    rel="noopener noreferrer"
-    initial={{ opacity: 0, scale: 0.96 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.4, delay: index * 0.06 }}
-    className="group relative block rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-lg transition-all duration-300"
-    style={{ aspectRatio: '1/1' }}
-  >
-    <img src={post.media_url} alt="Vikram Utsav" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-      <p className="text-white text-xs leading-relaxed line-clamp-3 mb-2">{post.caption}</p>
-      <span className="text-amber-300 text-[10px] font-bold uppercase tracking-widest">View on Instagram →</span>
-    </div>
-    <div className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full p-1.5 shadow opacity-70 group-hover:opacity-100 transition-opacity">
-      <svg className="w-3.5 h-3.5 text-stone-700" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 2.163c3.204 0 3.584.012 4.85.067 3.282.15 4.793 1.662 4.943 4.943.055 1.266.067 1.646.067 4.85s-.012 3.584-.067 4.85c-.15 3.282-1.662 4.793-4.943 4.943-1.266.055-1.646.067-4.85.067s-3.584-.012-4.85-.067c-3.282-.15-4.793-1.662-4.943-4.943-.055-1.266-.067-1.646-.067-4.85s.012-3.584.067-4.85c.15-3.282 1.662-4.793 4.943-4.943 1.266-.055 1.646-.067 4.85-.067m0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.058-1.281.072-1.689.072-4.947s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.058-1.689-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-      </svg>
-    </div>
-  </motion.a>
-);
-
-/* ─── Main ─────────────────────────────────────────────────────────────────── */
 export default function HomePage() {
-  const [igPosts, setIgPosts] = useState([]);
-  const [igLoading, setIgLoading] = useState(true);
-  const [igError, setIgError] = useState(false);
   const [videos, setVideos] = useState([]);
   const [videosLoading, setVideosLoading] = useState(true);
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
 
-  /* YouTube RSS */
   useEffect(() => {
     const fetchVideos = async () => {
       try {
@@ -141,8 +48,7 @@ export default function HomePage() {
           pubDate: entry.querySelector('published')?.textContent || '',
         }));
         setVideos(parsed.filter(v => v.videoId));
-      } catch (err) {
-        console.error('YouTube RSS error:', err);
+      } catch {
         setVideos([{ title: 'Folk Tales of Samrat Vikramaditya', link: 'https://www.youtube.com/watch?v=SdpAKnWIaBA', thumbnail: '/poster.jpg', videoId: 'SdpAKnWIaBA', pubDate: '' }]);
       } finally {
         setVideosLoading(false);
@@ -151,351 +57,455 @@ export default function HomePage() {
     fetchVideos();
   }, []);
 
-  /* Instagram */
-  useEffect(() => {
-    const fetchIG = async () => {
-      try {
-        /*
-         * ── REAL INSTAGRAM INTEGRATION ──────────────────────────────
-         * 1. Create a Facebook Developer App & add Instagram Basic Display
-         * 2. Generate a long-lived access token for @bharatvikram_2022
-         * 3. Replace YOUR_IG_ACCESS_TOKEN below and uncomment:
-         *
-         * const IG_TOKEN = 'YOUR_IG_ACCESS_TOKEN';
-         * const res = await fetch(
-         *   `https://graph.instagram.com/me/media` +
-         *   `?fields=id,caption,media_url,permalink,media_type,timestamp` +
-         *   `&access_token=${IG_TOKEN}`
-         * );
-         * const data = await res.json();
-         * if (data.error) throw new Error(data.error.message);
-         * setIgPosts(data.data.filter(p => p.media_type === 'IMAGE').slice(0, 8));
-         * return;
-         * ────────────────────────────────────────────────────────────
-         */
-        setTimeout(() => {
-          setIgPosts([
-            { id: 1, media_url: '/poster.jpg', caption: 'Witness the glory of Samrat Vikramaditya at Vikram Utsav 2026. Join us in celebrating a legacy of justice and valor. #VikramUtsav #Ujjain', permalink: 'https://instagram.com/bharatvikram_2022' },
-            { id: 2, media_url: '/poster.jpg', caption: 'Nominations for the Samrat Vikramaditya Samman are now open worldwide. ✨ #Awards #GlobalHonor', permalink: 'https://instagram.com/bharatvikram_2022' },
-            { id: 3, media_url: '/poster.jpg', caption: 'Art, Culture, and History intertwine beautifully tonight. Glimpses from the celebrations! #CultureMP #IncredibleIndia', permalink: 'https://instagram.com/bharatvikram_2022' },
-            { id: 4, media_url: '/poster.jpg', caption: 'Nominate someone making extraordinary contributions in human welfare and justice today! #GlobalHonor', permalink: 'https://instagram.com/bharatvikram_2022' },
-            { id: 5, media_url: '/poster.jpg', caption: 'The Navratnas of Emperor Vikramaditya — nine jewels of wisdom gracing the court of Ujjain. 🌟', permalink: 'https://instagram.com/bharatvikram_2022' },
-            { id: 6, media_url: '/poster.jpg', caption: 'Vikram Samvat 2082 — honouring the emperor who gave India its eternal calendar of wisdom.', permalink: 'https://instagram.com/bharatvikram_2022' },
-            { id: 7, media_url: '/poster.jpg', caption: 'Archaeological evidence of Vikramaditya\'s reign from the ancient city of Ujjain. 🏛️ #History', permalink: 'https://instagram.com/bharatvikram_2022' },
-            { id: 8, media_url: '/poster.jpg', caption: 'Last date for nominations: 10 March 2026. Don\'t miss this opportunity! #SamratVikramaditya', permalink: 'https://instagram.com/bharatvikram_2022' },
-          ]);
-          setIgLoading(false);
-        }, 700);
-      } catch (err) {
-        setIgError(true);
-        setIgLoading(false);
-      }
-    };
-    fetchIG();
-  }, []);
-
   const virtues = ['Justice & Law', 'Valor & Bravery', 'Generosity', 'Good Governance', 'Astronomy & Astrology', 'Arts & Literature', 'Diplomacy', 'Spirituality', 'Indian Philosophy', 'Vedanta', 'Social Upliftment', 'Global Human Welfare'];
 
+  const awards = [
+    { label: 'International', cat: 'Category I', amount: '₹1.01 Crore', desc: 'For individuals and organizations across the world making outstanding impacts in human welfare, justice, generosity, Indian philosophy, and the virtues of Emperor Vikramaditya.', border: '#d4a017' },
+    { label: 'National Award', cat: 'Category II', amount: '₹21 Lakh', desc: 'For exceptional contributions at the national level in good governance, classical literature, astronomy, valor, diplomacy, spirituality, and public welfare.', border: '#c8860a' },
+    { label: 'Shikhar Samman', cat: 'Category III · MP', amount: '₹5 Lakh × 3', desc: 'Three awards for remarkable achievements within Madhya Pradesh in arts, valor, literature, diplomacy, spirituality, and creative public welfare activities.', border: '#b87010' },
+  ];
+
+  const traits = [
+    { icon: '⚖', title: 'Justice', desc: 'Legendary for fair and compassionate rule over all citizens without distinction.' },
+    { icon: '⚔', title: 'Valor', desc: 'A warrior of exceptional courage who protected his kingdom and upheld dharma.' },
+    { icon: '📚', title: 'Wisdom', desc: 'Patron of the Navratnas — nine jewels of scholarship, poetry and science.' },
+    { icon: '🌍', title: 'Welfare', desc: 'Dedicated to the upliftment of all humanity, regardless of caste or creed.' },
+  ];
+
   return (
-    <div className="min-h-screen bg-white text-stone-900" style={{ fontFamily: 'Lato, sans-serif' }}>
+    <div style={{ background: '#fffdf7', minHeight: '100vh', color: '#2a1f0a' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600&family=Lato:wght@300;400;700;900&display=swap');
-        .gold-text {
-          background: linear-gradient(135deg, #8b6914 0%, #d4a017 50%, #b5820a 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Mulish:wght@300;400;500;600;700&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --gold: #c8860a;
+          --gold-light: #e8a820;
+          --gold-pale: #f5d87a;
+          --cream: #fffdf7;
+          --cream-2: #fdf6e3;
+          --cream-3: #faefd0;
+          --ink: #2a1f0a;
+          --ink-2: #4a3a1a;
+          --ink-3: #6b5530;
+          --ink-muted: #8a7050;
+          --border: rgba(200,134,10,0.18);
+          --border-strong: rgba(200,134,10,0.35);
         }
-        .shimmer { background: linear-gradient(90deg, transparent, rgba(181,130,10,0.35), transparent); background-size: 200%; animation: shim 3s infinite; }
-        @keyframes shim { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-        .pdot { animation: pdot 2.5s ease-in-out infinite; }
-        @keyframes pdot { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+
+        .serif  { font-family: 'Cormorant Garamond', Georgia, serif; }
+        .bask   { font-family: 'Libre Baskerville', Georgia, serif; }
+        .sans   { font-family: 'Mulish', sans-serif; }
+
+        /* ── Gold rule ── */
+        .gold-rule { display: flex; align-items: center; gap: 14px; }
+        .gold-rule::before, .gold-rule::after {
+          content: ''; flex: 1; height: 1px;
+          background: linear-gradient(90deg, transparent, var(--gold), transparent);
+          opacity: 0.4;
+        }
+
+        /* ── Eyebrow ── */
+        .eyebrow {
+          font-family: 'Mulish', sans-serif; font-size: 9.5px; font-weight: 700;
+          letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold);
+          margin-bottom: 14px; display: block;
+        }
+
+        /* ── CTAs ── */
+        .cta-primary {
+          display: inline-flex; align-items: center; gap: 9px; text-decoration: none;
+          font-family: 'Mulish', sans-serif; font-size: 11px; font-weight: 700;
+          letter-spacing: 0.2em; text-transform: uppercase; color: #fff;
+          background: linear-gradient(135deg, #d4a017 0%, #9a6008 100%);
+          padding: 15px 38px; border-radius: 2px;
+          box-shadow: 0 4px 24px rgba(180,120,10,0.28);
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(180,120,10,0.35); }
+
+        .cta-outline {
+          display: inline-flex; align-items: center; gap: 9px; text-decoration: none;
+          font-family: 'Mulish', sans-serif; font-size: 11px; font-weight: 700;
+          letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
+          background: transparent; border: 1.5px solid var(--gold-light);
+          padding: 14px 36px; border-radius: 2px;
+          transition: background 0.2s, color 0.2s;
+        }
+        .cta-outline:hover { background: var(--gold-pale); color: var(--ink); }
+
+        /* ── Award card ── */
+        .award-card {
+          background: #fff; border-radius: 4px; padding: 36px 30px;
+          box-shadow: 0 2px 20px rgba(180,120,10,0.07);
+          border-top: 3px solid var(--gold);
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .award-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(180,120,10,0.14); }
+
+        /* ── Trait card ── */
+        .trait-card {
+          background: var(--cream-2); border: 1px solid var(--border);
+          border-radius: 4px; padding: 26px 22px;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .trait-card:hover { border-color: var(--border-strong); box-shadow: 0 4px 20px rgba(180,120,10,0.1); }
+
+        /* ── Video card ── */
+        .vid-card {
+          display: block; text-decoration: none; border-radius: 4px; overflow: hidden;
+          background: #fff; border: 1px solid var(--border);
+          box-shadow: 0 2px 12px rgba(180,120,10,0.06);
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .vid-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(180,120,10,0.12); }
+        .vid-card:hover img { transform: scale(1.04); }
+        .vid-card:hover .play-btn { transform: scale(1.1); }
+
+        /* ── Virtue tag ── */
+        .v-tag {
+          display: inline-flex; align-items: center; gap: 5px;
+          padding: 7px 15px; border: 1px solid var(--border-strong);
+          border-radius: 2px; background: #fff;
+          font-family: 'Mulish', sans-serif; font-size: 11px; font-weight: 600;
+          color: var(--ink-2); letter-spacing: 0.05em;
+          transition: all 0.2s;
+        }
+        .v-tag:hover { background: var(--cream-3); border-color: var(--gold); color: var(--gold); }
+
+        /* ── Contact card ── */
+        .contact-card {
+          background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 20px 22px;
+          transition: border-color 0.2s;
+        }
+        .contact-card:hover { border-color: var(--gold); }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+          .hero-layout { flex-direction: column !important; }
+          .hero-img-col { width: 300px !important; margin: 0 auto !important; }
+          .hero-title { font-size: 58px !important; }
+          .hero-sub { font-size: 30px !important; }
+          .about-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 768px) {
+          .awards-grid { grid-template-columns: 1fr !important; }
+          .stats-grid  { grid-template-columns: 1fr 1fr !important; }
+          .vid-grid    { grid-template-columns: 1fr 1fr !important; }
+          .traits-grid { grid-template-columns: 1fr 1fr !important; }
+          .contact-grid { grid-template-columns: 1fr 1fr !important; }
+          .hero-title { font-size: 48px !important; }
+        }
+        @media (max-width: 500px) {
+          .vid-grid { grid-template-columns: 1fr !important; }
+          .contact-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* ══ HERO ══════════════════════════════════════════════════════════════ */}
-      <section ref={heroRef}
-        className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden mb-20"
-        style={{ background: 'linear-gradient(160deg, #fdf8ee 0%, #fffcf3 50%, #fef4dc 100%)' }}>
-        {/* Subtle pattern */}
-        <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='52' height='52' viewBox='0 0 52 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b5820a' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 26 L26 0 L52 26 L26 52Z' stroke='%23b5820a' stroke-width='0.5' fill='none'/%3E%3C/g%3E%3C/svg%3E")` }} />
-        {/* Radial glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(212,160,23,0.12) 0%, transparent 70%)' }} />
-        {/* Bottom fade */}
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10" />
+      <section style={{
+        position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(160deg, #fdf6e3 0%, #fffdf7 40%, #fdf0cc 100%)',
+        paddingBottom: 0,
+      }}>
+        {/* Diamond pattern overlay */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.035, backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 4L52 28L28 52L4 28Z' fill='none' stroke='%23c8860a' stroke-width='0.7'/%3E%3C/svg%3E")`, backgroundSize: '56px 56px', pointerEvents: 'none' }} />
 
-        <motion.div style={{ y: heroY }} className="relative z-10 max-w-5xl mx-auto px-6 text-center pt-12">
-          {/* Badge */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-amber-300 bg-white/80 backdrop-blur-sm mb-8 shadow-sm">
-            <span className="pdot w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
-            <span className="text-amber-800 text-xs font-bold uppercase tracking-[0.25em]">Global Recognition · Vikram Samvat 2082</span>
-          </motion.div>
+        {/* Saffron radial behind image */}
+        <div style={{ position: 'absolute', top: '0', right: '5%', width: 640, height: 640, borderRadius: '50%', background: 'radial-gradient(circle, rgba(240,170,30,0.14) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
-          {/* Sanskrit */}
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.15 }}
-            className="italic text-amber-600/60 text-xl md:text-2xl mb-5" style={{ fontFamily: "'Playfair Display', serif" }}>
-            ॥ न्याय · पराक्रम · विद्या · दान ॥
-          </motion.p>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '80px 40px 0', position: 'relative', zIndex: 5 }}>
+          <div className="hero-layout" style={{ display: 'flex', alignItems: 'flex-end', gap: 64 }}>
 
-          {/* Title */}
-          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            style={{ fontFamily: "'Playfair Display', serif" }} className="font-black leading-tight tracking-tight mb-6">
-            <span className="block text-5xl md:text-7xl lg:text-8xl gold-text mb-1">Samrat Vikramaditya</span>
-            <span className="block text-3xl md:text-5xl lg:text-6xl text-stone-800">Samman</span>
-          </motion.h1>
+            {/* ── Left: Text ── */}
+            <div style={{ flex: 1, minWidth: 0, paddingBottom: 80 }}>
 
-          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.7, delay: 0.5 }}
-            className="shimmer h-px w-64 md:w-96 mx-auto mb-8" />
+              {/* Badge */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', border: '1px solid rgba(200,134,10,0.3)', borderRadius: 2, background: 'rgba(245,216,120,0.18)', marginBottom: 36 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4a017', display: 'inline-block' }} />
+                <span className="sans" style={{ fontSize: 9.5, color: '#9a6008', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700 }}>
+                  Nominations Open · Vikram Samvat 2082
+                </span>
+              </div>
 
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.65 }}
-            className="text-stone-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-            Honoring extraordinary individuals and organizations who embody the timeless virtues of Emperor Vikramaditya — across every nation, every discipline.
-          </motion.p>
+              {/* Sanskrit */}
+              <p className="serif" style={{ color: '#c8860a', fontSize: 22, fontStyle: 'italic', marginBottom: 18, letterSpacing: '0.06em', opacity: 0.8 }}>
+                ॥ न्याय · पराक्रम · विद्या · दान ॥
+              </p>
 
-          {/* CTAs */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.8 }}
-            className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-            <Link href="/nominate"
-              className="px-9 py-4 rounded-full text-sm font-bold uppercase tracking-[0.15em] text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-              style={{ background: 'linear-gradient(135deg, #8b6914, #d4a017)', boxShadow: '0 4px 20px rgba(181,130,10,0.35)' }}>
-              Submit Nomination
-            </Link>
-            <Link href="/rules"
-              className="px-9 py-4 rounded-full text-sm font-bold uppercase tracking-[0.15em] text-amber-800 border-2 border-amber-300 bg-white/70 hover:bg-amber-50 transition-all duration-300">
-              Read Guidelines
-            </Link>
-          </motion.div>
+              {/* Main title */}
+              <h1 className="serif hero-title" style={{ fontSize: 76, fontWeight: 700, lineHeight: 1.0, marginBottom: 8, color: '#1a1000', letterSpacing: '-0.01em' }}>
+                Samrat<br />
+                <span style={{ background: 'linear-gradient(135deg, #c8860a 0%, #e8a820 50%, #9a6008 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  Vikramaditya
+                </span>
+              </h1>
+              <h2 className="serif hero-sub" style={{ fontSize: 36, fontWeight: 400, color: '#6b5530', marginBottom: 32, letterSpacing: '0.08em' }}>
+                Samman 2026
+              </h2>
 
-          {/* Organizer */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1.6 }}
-            className="inline-flex flex-col sm:flex-row items-center gap-3 sm:gap-8 border border-amber-200 rounded-2xl px-8 py-4 bg-white/70 backdrop-blur-sm shadow-sm">
-            <div className="text-center sm:text-left">
-              <p className="text-stone-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5">Organized By</p>
-              <p className="text-stone-800 font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>Maharaja Vikramaditya Shodhpeeth</p>
+              <div className="gold-rule" style={{ maxWidth: 360, marginBottom: 30 }}>
+                <svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 1l2.4 7.4H20l-6.2 4.6 2.4 7.3L10 16.1 3.8 20.3l2.4-7.3L0 8.4h7.6z" fill="#c8860a" opacity=".7"/></svg>
+              </div>
+
+              <p className="sans" style={{ color: '#6b5530', fontSize: 15.5, lineHeight: 1.85, fontWeight: 400, maxWidth: 510, marginBottom: 44 }}>
+                Honoring extraordinary individuals and organizations who embody the timeless virtues of Emperor Vikramaditya — across every nation, every discipline.
+              </p>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 56 }}>
+                <Link href="/nominate" className="cta-primary">
+                  <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.4 7.4H20l-6.2 4.6 2.4 7.3L10 16.1 3.8 20.3l2.4-7.3L0 8.4h7.6z"/></svg>
+                  Submit Nomination
+                </Link>
+                <Link href="/rules" className="cta-outline">Read Guidelines</Link>
+              </div>
+
+              {/* Organizer strip */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, paddingTop: 28, borderTop: '1px solid rgba(200,134,10,0.2)' }}>
+                {[
+                  { l: 'Organized by', v: 'Maharaja Vikramaditya Shodhpeeth' },
+                  { l: 'Under', v: 'Culture Department, Madhya Pradesh' },
+                ].map((item, i) => (
+                  <div key={i} style={{ paddingRight: 36, paddingLeft: i > 0 ? 36 : 0, borderLeft: i > 0 ? '1px solid rgba(200,134,10,0.2)' : 'none' }}>
+                    <p className="sans" style={{ fontSize: 9, color: '#b8880a', letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 5 }}>{item.l}</p>
+                    <p className="bask" style={{ color: '#3a2a0a', fontSize: 14, fontWeight: 400 }}>{item.v}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="hidden sm:block w-px h-8 bg-amber-200" />
-            <div className="text-center sm:text-left">
-              <p className="text-stone-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5">Under</p>
-              <p className="text-stone-800 font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>Culture Dept., Madhya Pradesh</p>
-            </div>
-          </motion.div>
-        </motion.div>
 
-        {/* Deadline */}
-        {/* <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-800 bg-white border border-amber-200 rounded-full px-5 py-2 shadow-sm">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Last date for nominations: 10 March 2026
+            {/* ── Right: Vikramaditya portrait ── */}
+            <div className="hero-img-col" style={{ width: 440, flexShrink: 0, position: 'relative', alignSelf: 'flex-end' }}>
+              {/* Decorative rings */}
+              <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 420, height: 420, borderRadius: '50%', border: '1px solid rgba(200,134,10,0.12)', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 500, height: 500, borderRadius: '50%', border: '1px solid rgba(200,134,10,0.06)', pointerEvents: 'none' }} />
+              {/* Warm glow behind figure */}
+              <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle, rgba(240,170,30,0.22) 0%, transparent 65%)', pointerEvents: 'none' }} />
+
+              <img
+                src="/vikramaditya.png"
+                alt="Samrat Vikramaditya"
+                style={{ display: 'block', width: '100%', objectFit: 'contain', objectPosition: 'bottom center', position: 'relative', zIndex: 2, filter: 'drop-shadow(0 -10px 40px rgba(200,134,10,0.15))' }}
+                onError={e => {
+                  const wrap = e.target.parentNode;
+                  e.target.style.display = 'none';
+                  wrap.style.minHeight = '480px';
+                  wrap.style.display = 'flex'; wrap.style.alignItems = 'center'; wrap.style.justifyContent = 'center';
+                  const fb = document.createElement('div');
+                  fb.style.textAlign = 'center';
+                  fb.innerHTML = `<div style="font-size:100px;opacity:0.15;">⚔</div><p style="font-family:'Mulish',sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#c8860a;opacity:.4;margin-top:16px">Place vikramaditya.png<br/>in /public folder</p>`;
+                  wrap.appendChild(fb);
+                }}
+              />
+
+              {/* Deadline badge */}
+              <div style={{ position: 'absolute', bottom: 48, right: -16, zIndex: 10, background: '#fff', border: '1px solid rgba(200,134,10,0.3)', borderRadius: 4, padding: '14px 20px', boxShadow: '0 8px 32px rgba(180,120,10,0.14)' }}>
+                <p className="sans" style={{ fontSize: 9, color: '#b8880a', letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 5 }}>Last Date</p>
+                <p className="serif" style={{ color: '#9a6008', fontSize: 22, fontWeight: 600, lineHeight: 1 }}>20 May 2026</p>
+              </div>
+            </div>
+
           </div>
-        </motion.div> */}
+        </div>
+
+        {/* Bottom wave */}
+        <div style={{ marginTop: -2, lineHeight: 0 }}>
+          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', width: '100%' }}>
+            <path d="M0 60L60 50C120 40 240 20 360 15C480 10 600 20 720 25C840 30 960 30 1080 25C1200 20 1320 10 1380 5L1440 0V60H0Z" fill="#fffdf7"/>
+          </svg>
+        </div>
       </section>
 
       {/* ══ STATS BAND ════════════════════════════════════════════════════════ */}
-      <section className="border-y border-amber-100 bg-amber-50/50 py-6">
-        <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {[
-            { v: '₹1.01 Cr', l: 'International Award' },
-            { v: '₹21 Lakh', l: 'National Award' },
-            { v: '3 × ₹5L', l: 'Shikhar Awards' },
-            { v: '10 Mar', l: 'Deadline 2026' },
-          ].map((s, i) => (
-            <motion.div key={s.l} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
-              <p className="text-2xl md:text-3xl font-bold gold-text" style={{ fontFamily: "'Playfair Display', serif" }}>{s.v}</p>
-              <p className="text-stone-500 text-xs uppercase tracking-[0.15em] mt-1 font-semibold">{s.l}</p>
-            </motion.div>
-          ))}
+      <section style={{ background: '#fffdf7', padding: '12px 40px 52px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 0, background: '#fff', border: '1px solid rgba(200,134,10,0.18)', borderRadius: 6, boxShadow: '0 4px 32px rgba(180,120,10,0.08)', overflow: 'hidden' }}>
+            {[
+              { v: '₹1.01 Cr', l: 'International Award' },
+              { v: '₹21 Lakh', l: 'National Award' },
+              { v: '3 × ₹5L', l: 'Shikhar Awards' },
+              { v: '20 May', l: 'Deadline 2026' },
+            ].map((s, i) => (
+              <div key={s.l} style={{ textAlign: 'center', padding: '28px 16px', borderLeft: i > 0 ? '1px solid rgba(200,134,10,0.12)' : 'none' }}>
+                <p className="serif" style={{ fontSize: 36, fontWeight: 700, color: '#9a6008', lineHeight: 1, marginBottom: 6 }}>{s.v}</p>
+                <p className="sans" style={{ color: '#b8880a', fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>{s.l}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ══ AWARDS ════════════════════════════════════════════════════════════ */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Categories of Honour"
-            title="The Awards"
-            subtitle="Three tiers of recognition, each a testament to Vikramaditya's eternal values of justice, valor, and wisdom."
-          />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <AwardCard tier="Category I · International" title="International Award" amount="₹1.01 Crore"
-              description="For individuals and organizations across the world making outstanding impacts in human welfare, justice, generosity, Indian philosophy, and the diverse virtues of Emperor Vikramaditya."
-              accentClass="border-amber-300 hover:border-amber-400" delay={0} />
-            <AwardCard tier="Category II · National" title="National Award" amount="₹21 Lakh"
-              description="For exceptional contributions at the national level in good governance, classical literature, astronomy, valor, diplomacy, spirituality, and public welfare activities."
-              accentClass="border-orange-300 hover:border-orange-400" delay={0.12} />
-            <AwardCard tier="Category III · Madhya Pradesh" title="Shikhar Samman" amount="₹5 Lakh" amountSuffix="× 3 Awards"
-              description="Three awards for remarkable achievements in Madhya Pradesh in arts, valor, classical literature, diplomacy, spirituality, and creative public welfare activities."
-              accentClass="border-rose-300 hover:border-rose-400" delay={0.24} />
+      <section style={{ padding: '80px 40px 100px', background: 'linear-gradient(180deg, #fffdf7 0%, #fdf6e3 100%)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <span className="eyebrow">Categories of Honour</span>
+            <h2 className="serif" style={{ fontSize: 52, fontWeight: 700, color: '#1a1000', marginBottom: 20, lineHeight: 1.1 }}>The Awards</h2>
+            <div className="gold-rule" style={{ maxWidth: 160, margin: '0 auto 20px' }}>
+              <svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 1l2.4 7.4H20l-6.2 4.6 2.4 7.3L10 16.1 3.8 20.3l2.4-7.3L0 8.4h7.6z" fill="#c8860a" opacity=".65"/></svg>
+            </div>
+            <p className="sans" style={{ color: '#8a7050', fontSize: 15, fontWeight: 400, maxWidth: 540, margin: '0 auto', lineHeight: 1.85 }}>
+              Three tiers of recognition, each a testament to Vikramaditya's eternal values of justice, valor, and wisdom.
+            </p>
+          </div>
+
+          <div className="awards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 22, marginBottom: 44 }}>
+            {awards.map((a, i) => (
+              <div key={a.label} className="award-card" style={{ borderTopColor: i === 0 ? '#d4a017' : i === 1 ? '#c8860a' : '#b87010' }}>
+                <span className="sans" style={{ fontSize: 9, color: '#b8880a', letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: 10 }}>{a.cat}</span>
+                <h3 className="serif" style={{ fontSize: 26, fontWeight: 700, color: '#1a1000', marginBottom: 22, lineHeight: 1.15 }}>{a.label}</h3>
+                <div style={{ borderTop: '1px solid rgba(200,134,10,0.15)', paddingTop: 18, marginBottom: 18 }}>
+                  <p className="serif" style={{ fontSize: 34, fontWeight: 700, color: '#9a6008', lineHeight: 1 }}>{a.amount}</p>
+                  <p className="sans" style={{ fontSize: 9, color: '#c8a060', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: 4, fontWeight: 600 }}>Award Fund</p>
+                </div>
+                <p className="sans" style={{ color: '#6b5530', fontSize: 13.5, lineHeight: 1.85, fontWeight: 400, marginBottom: 28 }}>{a.desc}</p>
+                <Link href="/nominate" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'Mulish', sans-serif", fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c8860a', textDecoration: 'none', transition: 'gap 0.2s' }}>
+                  Nominate Now →
+                </Link>
+              </div>
+            ))}
           </div>
 
           {/* Virtues */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="mt-14 bg-amber-50/70 rounded-2xl border border-amber-100 p-8">
-            <p className="text-center text-amber-700 text-xs font-bold uppercase tracking-[0.25em] mb-5">Virtues We Honor</p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {virtues.map(v => (
-                <span key={v} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-amber-200 text-amber-800 text-xs font-semibold">
-                  ✦ {v}
-                </span>
-              ))}
+          <div style={{ background: '#fff', border: '1px solid rgba(200,134,10,0.18)', borderRadius: 6, padding: '40px 36px', boxShadow: '0 2px 20px rgba(180,120,10,0.06)' }}>
+            <span className="eyebrow" style={{ display: 'block', textAlign: 'center', marginBottom: 24 }}>Virtues We Honour</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+              {virtues.map(v => <span key={v} className="v-tag">✦ {v}</span>)}
             </div>
-          </motion.div>
-
-          <div className="mt-10 text-center">
-            <Link href="/nominate"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full border-2 border-amber-400 text-amber-800 text-sm font-bold uppercase tracking-[0.15em] hover:bg-amber-50 transition-all duration-300">
-              View Full Guidelines →
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* ══ INSTAGRAM ═════════════════════════════════════════════════════════ */}
-      <section className="py-24" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf5)' }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' }}>
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.067 3.282.15 4.793 1.662 4.943 4.943.055 1.266.067 1.646.067 4.85s-.012 3.584-.067 4.85c-.15 3.282-1.662 4.793-4.943 4.943-1.266.055-1.646.067-4.85.067s-3.584-.012-4.85-.067c-3.282-.15-4.793-1.662-4.943-4.943-.055-1.266-.067-1.646-.067-4.85s.012-3.584.067-4.85c.15-3.282 1.662-4.793 4.943-4.943 1.266-.055 1.646-.067 4.85-.067m0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.058-1.281.072-1.689.072-4.947s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.058-1.689-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                </div>
-                <span className="text-stone-400 text-xs font-bold uppercase tracking-[0.2em]">Live from Vikram Utsav · Ujjain</span>
+      {/* ══ ABOUT VIKRAMADITYA ════════════════════════════════════════════════ */}
+      <section style={{ padding: '100px 40px', background: '#fff', borderTop: '1px solid rgba(200,134,10,0.12)' }}>
+        <div className="about-grid" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+          <div>
+            <span className="eyebrow">The Emperor's Legacy</span>
+            <h2 className="serif" style={{ fontSize: 46, fontWeight: 700, color: '#1a1000', lineHeight: 1.15, marginBottom: 24 }}>
+              Who Was<br />Samrat Vikramaditya?
+            </h2>
+            <div className="gold-rule" style={{ maxWidth: 140, marginBottom: 28 }}>
+              <svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 1l2.4 7.4H20l-6.2 4.6 2.4 7.3L10 16.1 3.8 20.3l2.4-7.3L0 8.4h7.6z" fill="#c8860a" opacity=".65"/></svg>
+            </div>
+            <p className="sans" style={{ color: '#6b5530', fontSize: 14.5, lineHeight: 1.95, fontWeight: 400, marginBottom: 18 }}>
+              Samrat Vikramaditya was one of the greatest emperors in Indian history, renowned for his justice, generosity, valor, and wisdom. His court of nine jewels — the Navratnas — included luminaries like Kalidasa and Varahamihira, making Ujjain a global center of art, science, and philosophy.
+            </p>
+            <p className="sans" style={{ color: '#6b5530', fontSize: 14.5, lineHeight: 1.95, fontWeight: 400, marginBottom: 40 }}>
+              The Vikram Samvat calendar, followed by millions across India, is his enduring gift to civilization. His legacy of righteous governance and universal welfare continues to inspire humanity.
+            </p>
+            <Link href="/about" className="cta-outline">Discover His Story</Link>
+          </div>
+
+          <div className="traits-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            {traits.map(t => (
+              <div key={t.title} className="trait-card">
+                <div style={{ fontSize: 28, marginBottom: 14 }}>{t.icon}</div>
+                <p className="serif" style={{ color: '#9a6008', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t.title}</p>
+                <p className="sans" style={{ color: '#8a7050', fontSize: 12.5, lineHeight: 1.75, fontWeight: 400 }}>{t.desc}</p>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-stone-900" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Experience <span className="gold-text">Vikram Utsav</span>
-              </h2>
-            </div>
-            <a href="https://instagram.com/bharatvikram_2022" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-stone-200 text-stone-600 text-xs font-bold uppercase tracking-[0.15em] hover:border-amber-300 hover:text-amber-700 transition-all">
-              @bharatvikram_2022 ↗
-            </a>
+            ))}
           </div>
-
-          {/* Info banner */}
-          <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-3">
-            <svg className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div className="text-blue-700 text-xs leading-relaxed">
-              <strong>To show real Instagram posts from @bharatvikram_2022:</strong> Get an Instagram Graph API access token from{' '}
-              <a href="https://developers.facebook.com/docs/instagram-basic-display-api" target="_blank" rel="noopener noreferrer" className="underline font-bold">Meta Developers</a>
-              {' '}→ open <code className="bg-blue-100 px-1 rounded text-[11px]">HomePage.jsx</code> → find <code className="bg-blue-100 px-1 rounded text-[11px]">YOUR_IG_ACCESS_TOKEN</code> → replace & uncomment the API call in <code className="bg-blue-100 px-1 rounded text-[11px]">fetchIG()</code>.
-            </div>
-          </div>
-
-          {igLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {[...Array(8)].map((_, i) => <div key={i} className="rounded-xl bg-stone-100 animate-pulse" style={{ aspectRatio: '1/1' }} />)}
-            </div>
-          ) : igError ? (
-            <div className="text-center py-14 text-stone-400">
-              <p className="text-sm">Could not load Instagram posts. Please check your access token.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {igPosts.map((post, i) => <IGPostCard key={post.id} post={post} index={i} />)}
-            </div>
-          )}
-          <p className="text-center text-stone-400 text-xs mt-5">Hover to read captions · Click to view on Instagram</p>
         </div>
       </section>
 
-      {/* ══ YOUTUBE VIDEOS (RSS) ══════════════════════════════════════════════ */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      {/* ══ YOUTUBE VIDEOS ════════════════════════════════════════════════════ */}
+      <section style={{ padding: '100px 40px', background: 'linear-gradient(180deg, #fdf6e3 0%, #fffdf7 100%)', borderTop: '1px solid rgba(200,134,10,0.1)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, marginBottom: 48 }}>
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-red-600">
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
-                </div>
-                <span className="text-stone-400 text-xs font-bold uppercase tracking-[0.2em]">Latest from our channel</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-stone-900" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Bharat Vikram <span className="gold-text">Videos</span>
-              </h2>
+              <span className="eyebrow">Latest from Bharat Vikram</span>
+              <h2 className="serif" style={{ fontSize: 46, fontWeight: 700, color: '#1a1000', lineHeight: 1.1 }}>Videos</h2>
             </div>
             <a href="https://youtube.com/channel/UCpeZ-d1AJUKlJtSKpiHuUJw" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-600 text-white text-xs font-bold uppercase tracking-[0.15em] hover:bg-red-700 transition-colors">
-              Subscribe on YouTube ↗
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: "'Mulish',sans-serif", fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', background: '#c4302b', color: '#fff', padding: '11px 24px', borderRadius: 2, textDecoration: 'none', boxShadow: '0 4px 16px rgba(196,48,43,0.25)' }}>
+              <svg style={{ width: 14, height: 14 }} fill="currentColor" viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+              Subscribe on YouTube
             </a>
           </div>
 
           {videosLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="vid-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-xl bg-stone-100 animate-pulse">
-                  <div className="aspect-video bg-stone-200 rounded-t-xl" />
-                  <div className="p-4 space-y-2"><div className="h-4 bg-stone-200 rounded" /><div className="h-3 bg-stone-200 rounded w-2/3" /></div>
+                <div key={i} style={{ borderRadius: 4, overflow: 'hidden', background: '#fff', border: '1px solid rgba(200,134,10,0.1)' }}>
+                  <div style={{ aspectRatio: '16/9', background: 'linear-gradient(90deg, #f5ecd4 25%, #fdf6e3 50%, #f5ecd4 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                  <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ height: 13, background: '#f0e8d0', borderRadius: 2 }} />
+                    <div style={{ height: 11, background: '#f5ecd4', borderRadius: 2, width: '65%' }} />
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {videos.map((v, i) => <VideoCard key={v.videoId || i} video={v} index={i} />)}
+              <div className="vid-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginBottom: 40 }}>
+                {videos.map((v, i) => <VideoCard key={v.videoId || i} video={v} />)}
               </div>
               {videos.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  className="mt-12 max-w-4xl mx-auto">
-                  <p className="text-center text-stone-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">Featured Video</p>
-                  <div className="rounded-2xl overflow-hidden shadow-xl border border-stone-200">
-                    <div className="aspect-video">
-                      <iframe className="w-full h-full"
-                        src={`https://www.youtube.com/embed/${videos[0].videoId}`}
-                        title={videos[0].title} frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen />
-                    </div>
+                <div style={{ border: '1px solid rgba(200,134,10,0.2)', borderRadius: 6, overflow: 'hidden', maxWidth: 860, margin: '0 auto 36px', boxShadow: '0 4px 32px rgba(180,120,10,0.1)' }}>
+                  <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(200,134,10,0.15)', background: '#fff', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <svg style={{ width: 14, height: 14, color: '#c4302b', flexShrink: 0 }} fill="currentColor" viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+                    <p className="sans" style={{ fontSize: 9.5, color: '#b8880a', letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 700 }}>Featured Video</p>
                   </div>
-                </motion.div>
+                  <div style={{ aspectRatio: '16/9' }}>
+                    <iframe style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                      src={`https://www.youtube.com/embed/${videos[0].videoId}`}
+                      title={videos[0].title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen />
+                  </div>
+                </div>
               )}
+              <div style={{ textAlign: 'center' }}>
+                <a href="https://youtube.com/playlist?list=PLYJAqKuuEKfBIs9GPN8r-eu39-uD4EpWW" target="_blank" rel="noopener noreferrer" className="cta-outline">
+                  View Full Playlist →
+                </a>
+              </div>
             </>
           )}
-
-          <div className="mt-10 text-center">
-            <a href="https://youtube.com/playlist?list=PLYJAqKuuEKfBIs9GPN8r-eu39-uD4EpWW" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full border-2 border-stone-200 text-stone-600 text-sm font-bold uppercase tracking-[0.15em] hover:border-red-300 hover:text-red-600 transition-all">
-              View Full Playlist →
-            </a>
-          </div>
         </div>
+        <style>{`@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}`}</style>
       </section>
 
       {/* ══ BOTTOM CTA ════════════════════════════════════════════════════════ */}
-      <section className="py-20 border-t border-amber-100" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf3)' }}>
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <p className="text-amber-700 text-xs font-bold uppercase tracking-[0.3em] mb-4">Submit Before the Deadline</p>
-            <h2 className="text-4xl md:text-5xl font-bold text-stone-900 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Nominate for <span className="gold-text">Samman 2026</span>
-            </h2>
-            <Ornament className="max-w-xs mx-auto mb-6" />
-            <p className="text-stone-600 text-base leading-relaxed mb-8 max-w-xl mx-auto">
-              Send clear recommendations by <strong className="text-amber-800">10 March 2026</strong> to the Director, Maharaja Vikramaditya Shodhpeeth, Bhopal.
-            </p>
-            <div className="inline-block bg-white border border-amber-200 rounded-2xl px-8 py-6 text-left shadow-sm mb-8 w-full max-w-md">
-              <p className="font-bold text-stone-800 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>Contact & Submission</p>
-              <div className="space-y-1.5 text-sm text-stone-600">
-                <p>📧 <a href="mailto:mvspujjain@gmail.com" className="text-amber-700 font-semibold hover:underline">mvspujjain@gmail.com</a></p>
-                <p>📞 <a href="tel:07554535064" className="text-amber-700 font-semibold hover:underline">0755-4535064</a></p>
-                <p>🌐 <a href="https://www.mvspujjain.com" target="_blank" rel="noopener noreferrer" className="text-amber-700 font-semibold hover:underline">www.mvspujjain.com</a></p>
+      <section style={{ background: 'linear-gradient(160deg, #faefd0 0%, #fdf6e3 60%, #f5e8b8 100%)', borderTop: '1px solid rgba(200,134,10,0.18)', padding: '100px 40px' }}>
+        <div style={{ maxWidth: 740, margin: '0 auto', textAlign: 'center' }}>
+          <span className="eyebrow">Submit Before the Deadline</span>
+          <h2 className="serif" style={{ fontSize: 50, fontWeight: 700, color: '#1a1000', lineHeight: 1.15, marginBottom: 18 }}>
+            Nominate for<br />
+            <span style={{ background: 'linear-gradient(135deg,#c8860a,#e8a820,#9a6008)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Samman 2026</span>
+          </h2>
+          <div className="gold-rule" style={{ maxWidth: 160, margin: '0 auto 24px' }}>
+            <svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M10 1l2.4 7.4H20l-6.2 4.6 2.4 7.3L10 16.1 3.8 20.3l2.4-7.3L0 8.4h7.6z" fill="#c8860a" opacity=".65"/></svg>
+          </div>
+          <p className="sans" style={{ color: '#6b5530', fontSize: 15, lineHeight: 1.9, fontWeight: 400, marginBottom: 48 }}>
+            Send clear recommendations by <strong style={{ color: '#9a6008', fontWeight: 700 }}>20 May 2026</strong> to the Director,<br />Maharaja Vikramaditya Shodhpeeth, Bhopal.
+          </p>
+
+          <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 48, textAlign: 'left' }}>
+            {[
+              { l: 'Email', v: 'samratvikramadityasamman@gmail.com', href: 'mailto:samratvikramadityasamman@gmail.com' },
+              { l: 'Phone', v: '0755-4535064', href: 'tel:07554535064' },
+              { l: 'Website', v: 'awards.mvspujjain.com', href: 'https://awards.mvspujjain.com', ext: true },
+              { l: 'Address', v: 'Rabindra Bhavan Campus, Bhopal', href: null },
+            ].map(item => (
+              <div key={item.l} className="contact-card">
+                <p className="sans" style={{ fontSize: 9, color: '#b8880a', letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 6 }}>{item.l}</p>
+                {item.href
+                  ? <a href={item.href} target={item.ext ? '_blank' : undefined} rel={item.ext ? 'noopener noreferrer' : undefined} className="sans" style={{ color: '#9a6008', fontSize: 13.5, fontWeight: 600, textDecoration: 'none' }}>{item.v}</a>
+                  : <p className="sans" style={{ color: '#4a3a1a', fontSize: 13.5, fontWeight: 500 }}>{item.v}</p>
+                }
               </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/nominate"
-                className="px-9 py-4 rounded-full text-sm font-bold uppercase tracking-[0.15em] text-white transition-all hover:shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #8b6914, #d4a017)', boxShadow: '0 4px 20px rgba(181,130,10,0.3)' }}>
-                Begin Nomination
-              </Link>
-              <Link href="/about"
-                className="px-9 py-4 rounded-full text-sm font-bold uppercase tracking-[0.15em] text-amber-800 border-2 border-amber-300 bg-white hover:bg-amber-50 transition-all">
-                About Vikramaditya
-              </Link>
-            </div>
-          </motion.div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
+            <Link href="/nominate" className="cta-primary">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.4 7.4H20l-6.2 4.6 2.4 7.3L10 16.1 3.8 20.3l2.4-7.3L0 8.4h7.6z"/></svg>
+              Begin Nomination
+            </Link>
+            <Link href="/about" className="cta-outline">About Vikramaditya</Link>
+          </div>
         </div>
       </section>
     </div>
