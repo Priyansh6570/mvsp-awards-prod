@@ -1,90 +1,84 @@
 export default function Footer() {
+  const categoryData = [
+    { name: 'अंतर्राष्ट्रीय सम्मान', amount: '₹1 करोड़ 1 लाख' },
+    { name: 'राष्ट्रीय सम्मान', amount: '₹21 लाख' },
+    { name: 'शिखर सम्मान (तीन)', amount: '₹5-5 लाख' }
+  ];
+
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap');
-        .ftr-serif { font-family: 'Cormorant Garamond', serif; }
-        .ftr-sans  { font-family: 'Jost', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
       `}</style>
 
-      <footer style={{ background: '#080500', borderTop: '1px solid rgba(212,160,23,0.12)', paddingTop: 64, paddingBottom: 32 }}>
-
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 48, marginBottom: 56 }}>
-
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-                <img
-                  src="/logo.png"
-                  alt="Logo"
-                  style={{ width: 40, height: 'auto', filter: 'drop-shadow(0 2px 8px rgba(212,160,23,0.3))' }}
-                />
-                <div>
-                  <p className="ftr-serif" style={{ color: '#d4a017', fontSize: 18, fontWeight: 600, lineHeight: 1.1 }}>
-                    Vikramaditya Samman
-                  </p>
-                  <p className="ftr-sans" style={{ color: 'rgba(255,255,255,0.25)', fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', marginTop: 4 }}>
-                    Samman 2026
-                  </p>
-                </div>
-              </div>
-              <p className="ftr-sans" style={{ color: 'rgba(255,255,255,0.38)', fontSize: 13, lineHeight: 1.8, fontWeight: 300 }}>
-                Organized by Maharaja Vikramaditya Shodhpeeth,<br />
-                Culture Department, Madhya Pradesh Government.
-              </p>
+      <footer className="bg-white border-t border-orange-100 pt-16 pb-8 mt-auto" style={{ fontFamily: "'Noto Sans Devanagari', 'Inter', sans-serif" }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            
+            {/* New Combined Logo and organization info column (Graphic + Maroon Banner + Hindi Text) */}
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+              <img
+                src="/assets/images/image_6.png"
+                alt="महाराजा विक्रमादित्य शोधपीठ, मध्यप्रदेश शासन संस्कृति विभाग"
+                className="w-[50%] max-w-sm h-auto drop-shadow-sm mb-4"
+              />
             </div>
 
+            {/* Contact Information */}
             <div>
-              <p className="ftr-sans" style={{ color: 'rgba(212,160,23,0.6)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 20 }}>
-                Contact
+              <p className="text-slate-400 text-xs font-bold tracking-widest uppercase mb-5">
+                संपर्क
               </p>
-              <address className="ftr-sans" style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.38)', fontSize: 13, lineHeight: 2, fontWeight: 300 }}>
-                Director, Maharaja Vikramaditya Research Chair<br />
-                Rabindra Sabhagam Kendra, First Floor<br />
-                Rabindra Bhavan Campus, Bhopal<br />
-                <a href="mailto:mvspujjain@gmail.com" style={{ color: 'rgba(212,160,23,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}>
-                  mvspujjain@gmail.com
+              <address className="not-italic text-slate-600 text-[0.95rem] leading-loose">
+                निदेशक, महाराजा विक्रमादित्य शोधपीठ <br />
+                बिड़ला भवन, देवास रोड, उज्जैन <br />
+                रवीन्द्र सभागम केंद्र, प्रथम तल, रवीन्द्र भवन परिसर, भोपाल <br />
+                <a href="mailto:samratvikramadityasamman@gmail.com" className="text-orange-600 hover:text-orange-700 transition-colors inline-block mt-2 font-medium">
+                  samratvikramadityasamman@gmail.com
                 </a>
                 <br />
-                <a href="tel:07554535064" style={{ color: 'rgba(255,255,255,0.38)', textDecoration: 'none' }}>
-                  0755-4535064
-                </a>
+                दूरभाष: <a href="tel:07554535064" className="text-slate-700 font-medium hover:text-orange-600 transition-colors">0755-4535064</a>
               </address>
             </div>
 
+            {/* Award Categories & Deadlines */}
             <div>
-              <p className="ftr-sans" style={{ color: 'rgba(212,160,23,0.6)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 20 }}>
-                Award Categories
+              <p className="text-slate-400 text-xs font-bold tracking-widest uppercase mb-5">
+                सम्मान श्रेणियाँ
               </p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {['International Award — ₹1.01 Crore', 'National Award — ₹21 Lakh', 'Shikhar Award (3) — ₹5 Lakh each'].map(item => (
-                  <li key={item} className="ftr-sans" style={{ color: 'rgba(255,255,255,0.38)', fontSize: 13, lineHeight: 1, marginBottom: 14, fontWeight: 300, display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(212,160,23,0.4)', flexShrink: 0, display: 'inline-block' }} />
-                    {item}
+              <ul className="space-y-3 m-0 p-0 list-none">
+                {categoryData.map((category, index) => (
+                  <li key={index} className="text-slate-600 text-[0.95rem] flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
+                    {category.name}: <strong className="text-slate-700 font-medium ml-1">{category.amount}</strong>
                   </li>
                 ))}
               </ul>
-              <p className="ftr-sans" style={{ color: 'rgba(212,160,23,0.5)', fontSize: 12, marginTop: 20, fontWeight: 400 }}>
-                Last date: <strong style={{ color: '#d4a017' }}>20 May 2026</strong>
-              </p>
+              
+              <div className="mt-6 inline-block bg-orange-50 border border-orange-100 rounded-lg px-4 py-2">
+                <p className="text-slate-700 text-sm font-medium">
+                  नामांकन की अंतिम तिथि: <strong className="text-red-700">20 मई 2026</strong>
+                </p>
+              </div>
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid rgba(212,160,23,0.08)', paddingTop: 28, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-            <p className="ftr-sans" style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 300, letterSpacing: '0.05em' }}>
-              &copy; {new Date().getFullYear()} Maharaja Vikramaditya Shodhpeeth. All rights reserved.
+          {/* Copyright and Website Link */}
+          <div className="border-t border-slate-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-slate-500 text-sm">
+              &copy; {new Date().getFullYear()} महाराजा विक्रमादित्य शोधपीठ. सर्वाधिकार सुरक्षित।
             </p>
             <a
-              href="https://mvspujjain.com/"
+              href="https://awards.mvspujjain.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="ftr-sans"
-              style={{ color: 'rgba(212,160,23,0.5)', fontSize: 11, textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 500, transition: 'color 0.2s' }}
+              className="text-orange-600 text-sm font-semibold tracking-wide uppercase hover:text-orange-700 transition-colors flex items-center gap-1"
             >
-              awards.mvspujjain.com ↗
+              awards.mvspujjain.com
             </a>
           </div>
+          
         </div>
       </footer>
     </>

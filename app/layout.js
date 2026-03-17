@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="hi">
       <head>
         <Script id="react-dom-patch" strategy="beforeInteractive">
           {`
@@ -44,7 +44,8 @@ export default function RootLayout({ children }) {
             function googleTranslateElementInit() {
               new google.translate.TranslateElement(
                 { 
-                  pageLanguage: 'en',
+                  // Changed from 'en' to 'hi' to set Hindi as the base language
+                  pageLanguage: 'hi', 
                   autoDisplay: false
                 }, 
                 'google_translate_element'
