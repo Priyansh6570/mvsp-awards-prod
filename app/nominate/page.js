@@ -7,10 +7,19 @@ import Link from "next/link";
 import { Step1BasicInfo, Step2Professional, Step3CategoryDetails, Step4Documents, Step5Nominator, Step6Declaration } from "@/components/form/NominationSteps";
 
 const formVariants = {
-  hidden: (direction) => ({ opacity: 0, x: direction > 0 ? 30 : -30 }),
-  visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
-  exit: (direction) => ({ opacity: 0, x: direction > 0 ? -30 : 30, transition: { duration: 0.3, ease: "easeIn" } }),
+  hidden: (d) => ({ opacity: 0, x: d > 0 ? 24 : -24 }),
+  visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: "easeOut" } },
+  exit: (d) => ({ opacity: 0, x: d > 0 ? -24 : 24, transition: { duration: 0.25, ease: "easeIn" } }),
 };
+
+const STEPS = [
+  { id: 1, label: "मूल जानकारी", sublabel: "नाम, पता, संपर्क" },
+  { id: 2, label: "कार्यक्षेत्र का विवरण", sublabel: "क्षेत्र, अनुभव, उपलब्धियाँ" },
+  { id: 3, label: "सम्मान का आधार", sublabel: "मुख्य औचित्य" },
+  { id: 4, label: "अभिलेख", sublabel: "प्रमाण पत्र अपलोड" },
+  { id: 5, label: "नामांकनकर्ता", sublabel: "अनुशंसाकर्ता विवरण" },
+  { id: 6, label: "घोषणा", sublabel: "सहमति एवं हस्ताक्षर" },
+];
 
 export default function NominatePage() {
   const [step, setStep] = useState(1);
@@ -19,64 +28,31 @@ export default function NominatePage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [stepError, setStepError] = useState("");
-  
+
   const totalSteps = 6;
 
   const { register, handleSubmit, watch, setValue, trigger, control, formState: { errors } } = useForm({
     mode: "onChange",
-    defaultValues: { 
-      awardType: "National", 
-      nominationType: "Self", 
-      isPreferredLanguageOther: false, 
+    defaultValues: {
+      awardType: "National",
+      nominationType: "Self",
+      isPreferredLanguageOther: false,
       isCategoryDomainOther: false,
       keySuccesses: [""],
       awardsReceivedList: [""],
-      workAffiliationType: "Individual"
+      workAffiliationType: "Individual",
     },
   });
 
-  const watchAwardType = watch("awardType");
   const watchNominationType = watch("nominationType");
 
   const stepsConfig = [
-    { id: 1, title: "Basic Information", reqFields: [
-      { n: "awardType", l: "Award Type" }, 
-      { n: "nominationType", l: "Nomination Type" }, 
-      { n: "firstName", l: "First Name" }, 
-      { n: "lastName", l: "Last Name" }, 
-      { n: "gender", l: "Gender" }, 
-      { n: "dateOfBirth", l: "Date of Birth" }, 
-      { n: "nationality", l: "Nationality" }, 
-      { n: "preferredLanguage", l: "Language" }, 
-      { n: "mobileNumber", l: "Mobile" }, 
-      { n: "emailId", l: "Email" }, 
-      { n: "address", l: "Address" }, 
-      { n: "city", l: "City" }, 
-      { n: "pincode", l: "Pincode" }, 
-      { n: "state", l: "State" }, 
-      { n: "country", l: "Country" }
-    ]},
-    { id: 2, title: "Professional Details", reqFields: [
-      { n: "workAffiliationType", l: "Work Type" },
-      { n: "categoryDomain", l: "Domain" }, 
-      { n: "fieldOfExcellence", l: "Field" }, 
-      { n: "experienceYears", l: "Experience" }
-    ]},
-    { id: 3, title: "Basis for Respect", reqFields: [
-      { n: "mainBasisForRespect", l: "Justification" }
-    ]},
-    { id: 4, title: "Documents", reqFields: watchNominationType === "Self" 
-        ? [{ n: "documents.photograph", l: "Photo" }, { n: "documents.proofOfWork", l: "Proof" }] 
-        : [{ n: "documents.proofOfWork", l: "Proof" }] 
-    },
-    { id: 5, title: "Nominator Details", reqFields: watchNominationType === "Self" 
-        ? [] 
-        : [{ n: "nominator.firstName", l: "First Name" }, { n: "nominator.lastName", l: "Last Name" }, { n: "nominator.mobile", l: "Mobile" }, { n: "nominator.email", l: "Email" }] 
-    },
-    { id: 6, title: "Declaration", reqFields: [
-      { n: "consentCheckbox", l: "Consent" }, 
-      { n: "digitalSignature", l: "Signature" }
-    ]}
+    { id: 1, reqFields: ["awardType","nominationType","firstName","lastName","gender","dateOfBirth","nationality","preferredLanguage","mobileNumber","emailId","address","city","pincode","state","country"] },
+    { id: 2, reqFields: ["workAffiliationType","categoryDomain","fieldOfExcellence","experienceYears"] },
+    { id: 3, reqFields: ["mainBasisForRespect"] },
+    { id: 4, reqFields: ["documents.proofOfWork"] },
+    { id: 5, reqFields: watchNominationType === "Self" ? [] : ["nominator.firstName","nominator.lastName","nominator.mobile","nominator.email","nominator.address","nominator.recommendationNote"] },
+    { id: 6, reqFields: ["consentCheckbox","digitalSignature"] },
   ];
 
   const onSubmit = async (data) => {
@@ -89,7 +65,7 @@ export default function NominatePage() {
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Failed to submit nomination");
+      if (!response.ok) throw new Error(result.error || "नामांकन जमा करने में त्रुटि हुई");
       setIsSuccess(true);
     } catch (error) {
       setSubmitError(error.message);
@@ -100,139 +76,255 @@ export default function NominatePage() {
 
   const handleNextStep = async () => {
     setStepError("");
-    const fieldsToValidate = stepsConfig[step - 1].reqFields.map(f => f.n);
-    const isStepValid = await trigger(fieldsToValidate);
+    const isStepValid = await trigger(stepsConfig[step - 1].reqFields);
     if (!isStepValid) {
-      setStepError("Please fill all required fields correctly.");
+      setStepError("कृपया सभी अनिवार्य फ़ील्ड (*) सही से भरें।");
       return;
     }
     setDirection(1);
-    setStep((prev) => Math.min(prev + 1, totalSteps));
+    setStep((p) => Math.min(p + 1, totalSteps));
   };
 
   const handlePrevStep = () => {
     setStepError("");
     setDirection(-1);
-    setStep((prev) => Math.max(prev - 1, 1));
+    setStep((p) => Math.max(p - 1, 1));
   };
 
-  const isFieldFilled = (name) => {
-    const val = watch(name);
-    return Array.isArray(val) ? val.length > 0 && val[0] !== "" : !!val;
-  };
+  const progress = Math.round(((step - 1) / (totalSteps - 1)) * 100);
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white p-10 rounded-3xl shadow-2xl max-w-lg w-full text-center border border-slate-200">
-          <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+      <div className="min-h-screen bg-[#fffdf7] flex items-center justify-center p-5">
+        <motion.div
+          initial={{ scale: 0.92, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          className="bg-white rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.1)] max-w-md w-full text-center border border-[rgba(200,134,10,0.15)] overflow-hidden"
+        >
+          <div className="h-2" style={{ background: 'linear-gradient(90deg, #c8860a, #f5c842, #c8860a)' }} />
+          <div className="p-10">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #dcfce7, #bbf7d0)' }}>
+              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-[22px] font-bold text-[#1a0800] mb-3" style={{ fontFamily: 'Noto Serif Devanagari, serif', paddingTop: '0.04em' }}>
+              नामांकन सफलतापूर्वक जमा हुआ
+            </h2>
+            <p className="text-[14px] text-[#6a4010] leading-relaxed mb-8" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+              सम्राट विक्रमादित्य सम्मान के लिए आपका नामांकन सफलतापूर्वक प्राप्त हो गया है। हम आपसे शीघ्र संपर्क करेंगे।
+            </p>
+            <Link href="/" className="inline-flex items-center gap-2 bg-gradient-to-br from-[#b8600a] to-[#9a4c06] text-white text-[13px] font-bold px-8 py-3.5 rounded-full shadow-[0_4px_20px_rgba(184,96,10,0.28)]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+              मुख्य पृष्ठ पर जाएँ
+            </Link>
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900 mb-4 uppercase tracking-tight">Success</h2>
-          <p className="text-slate-600 mb-8 leading-relaxed">Your nomination for the Samrat Vikramaditya Samman has been received successfully.</p>
-          <Link href="/" className="inline-block px-8 py-3.5 bg-slate-900 text-white rounded-xl font-bold shadow-lg hover:bg-black transition-all">Return to Home</Link>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <div className="lg:hidden bg-slate-900 text-white px-6 py-4 shadow-md sticky top-0 z-40">
-        <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-amber-500 mb-2">
-          <span>Step {step} of {totalSteps}</span>
-          <span>{Math.round(((step - 1) / (totalSteps - 1)) * 100)}%</span>
-        </div>
-        <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-          <motion.div className="bg-amber-500 h-1.5 rounded-full" initial={{ width: 0 }} animate={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }} transition={{duration: 0.4}} />
-        </div>
-      </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@600;700&display=swap');
+      `}</style>
 
-      <div className="flex-grow flex max-w-7xl mx-auto w-full py-8 px-4 sm:px-6 lg:px-8 gap-8">
-        {/* SIDEBAR UI: Fixed Colors & Styling */}
-        <div className="hidden lg:flex flex-col w-80 flex-shrink-0">
-          <div className="bg-slate-900 rounded-3xl shadow-2xl sticky top-28 border border-slate-800 overflow-hidden">
-            <div className="p-8 bg-gradient-to-br from-slate-900 to-slate-800 border-b border-slate-800">
-              <h2 className="text-2xl font-black text-white tracking-tight uppercase">Nomination</h2>
-              <p className="text-amber-500 font-bold mt-1 text-xs tracking-widest uppercase">Samman 2026</p>
+      <div className="min-h-screen bg-[#fffdf7]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+
+        {/* ── MOBILE PROGRESS HEADER ── */}
+        <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-[rgba(200,134,10,0.15)] shadow-[0_2px_12px_rgba(0,0,0,0.06)] px-5 py-3.5">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-[9.5px] font-bold uppercase text-[#b8700a]">चरण {step} / {totalSteps}</p>
+              <p className="text-[14px] font-semibold text-[#1a0800] leading-tight" style={{ fontFamily: 'Noto Serif Devanagari, serif', paddingTop: '0.04em' }}>
+                {STEPS[step - 1].label}
+              </p>
             </div>
-            <div className="px-6 pb-8 pt-6 space-y-6">
-              {stepsConfig.map((s) => {
-                const isActive = step === s.id;
-                const isPast = step > s.id;
-                return (
-                  <div key={s.id} className="relative">
-                    <div className="flex items-start">
-                      <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 font-black text-xs z-10 flex-shrink-0 transition-all duration-300 ${isActive ? 'border-amber-500 bg-amber-500 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : isPast ? 'border-emerald-500 bg-emerald-500 text-slate-900' : 'border-slate-700 bg-slate-900 text-slate-500'}`}>
-                        {isPast ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path></svg> : s.id}
-                      </div>
-                      <div className="ml-4 flex-grow">
-                        <h4 className={`text-xs font-black uppercase tracking-widest transition-colors duration-300 ${isActive ? 'text-white' : isPast ? 'text-slate-300' : 'text-slate-600'}`}>{s.title}</h4>
-                        <AnimatePresence>
-                          {isActive && s.reqFields.length > 0 && (
-                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mt-3 space-y-2.5 overflow-hidden">
-                              {s.reqFields.map((field, idx) => {
-                                const filled = isFieldFilled(field.n);
-                                return (
-                                  <div key={idx} className="flex items-center text-[10px] font-bold uppercase tracking-tighter">
-                                    <div className={`w-2 h-2 rounded-full mr-2 transition-colors duration-300 ${filled ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-700'}`} />
-                                    <span className={filled ? 'text-slate-300' : 'text-slate-600'}>{field.l}</span>
-                                  </div>
-                                );
-                              })}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                    {s.id !== totalSteps && <div className={`absolute left-4 top-8 w-0.5 h-full -ml-px transition-colors duration-500 ${isPast ? 'bg-emerald-500' : 'bg-slate-800'}`} />}
-                  </div>
-                );
-              })}
-            </div>
+            <span className="text-[20px] font-bold" style={{ color: '#c8860a', fontFamily: 'Noto Serif Devanagari, serif' }}>{progress}%</span>
+          </div>
+          <div className="w-full bg-[rgba(200,134,10,0.1)] rounded-full h-2 overflow-hidden">
+            <motion.div
+              className="h-2 rounded-full"
+              style={{ background: 'linear-gradient(90deg, #b8600a, #f5c842)' }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.4 }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5 mt-2.5 justify-center">
+            {STEPS.map((s) => (
+              <div
+                key={s.id}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: s.id === step ? 22 : 7,
+                  height: 7,
+                  background: s.id < step ? '#22c55e' : s.id === step ? '#c8860a' : 'rgba(200,134,10,0.15)',
+                }}
+              />
+            ))}
           </div>
         </div>
 
-        <div className="flex-grow flex flex-col min-w-0">
-          <div className="bg-white shadow-2xl rounded-3xl overflow-hidden border border-slate-200 flex flex-col h-full min-h-[650px]">
-            <div className="px-8 py-10 md:px-12 flex-grow relative">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 h-full flex flex-col justify-between">
-                <AnimatePresence mode="wait" custom={direction}>
-                  <motion.div key={step} custom={direction} variants={formVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6 w-full">
-                    <div className="mb-8 border-b border-slate-100 pb-4">
-                      <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">{stepsConfig[step - 1].title}</h3>
-                      <p className="text-slate-400 text-sm font-medium mt-1">Please ensure all details are accurate as per official records.</p>
+        <div className="max-w-7xl mx-auto flex gap-7 px-4 sm:px-6 lg:px-8 py-7 pb-16">
+
+          {/* ── SIDEBAR ── */}
+          <div className="hidden lg:block w-72 flex-shrink-0">
+            <div className="sticky top-8 bg-white border border-[rgba(200,134,10,0.14)] rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.07)]">
+
+              <div className="px-7 pt-7 pb-5 border-b border-[rgba(200,134,10,0.1)]" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf4)' }}>
+                <p className="text-[9.5px] font-bold  uppercase text-[#b8700a] mb-1">महाराजा विक्रमादित्य शोधपीठ</p>
+                <h2 className="text-[18px] font-bold text-[#1a0800] leading-snug" style={{ fontFamily: 'Noto Serif Devanagari, serif', paddingTop: '0.04em' }}>नामांकन प्रपत्र</h2>
+                <p className="text-[11px] text-[#9a6030] mt-0.5">सम्राट विक्रमादित्य सम्मान 2026</p>
+              </div>
+
+              <div className="px-7 py-3.5 border-b border-[rgba(200,134,10,0.08)]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10.5px] font-semibold text-[#9a6030]">प्रगति</span>
+                  <span className="text-[12px] font-bold text-[#b8600a]">{progress}%</span>
+                </div>
+                <div className="w-full bg-[rgba(200,134,10,0.1)] rounded-full h-1.5 overflow-hidden">
+                  <motion.div className="h-1.5 rounded-full" style={{ background: 'linear-gradient(90deg, #b8600a, #e8a820)' }} animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }} />
+                </div>
+              </div>
+
+              <div className="px-5 py-5 space-y-0.5">
+                {STEPS.map((s, i) => {
+                  const isActive = step === s.id;
+                  const isPast = step > s.id;
+                  return (
+                    <div key={s.id} className="relative">
+                      {i < STEPS.length - 1 && (
+                        <div className="absolute left-[22px] top-10 w-px h-[calc(100%-8px)] transition-colors duration-500" style={{ background: isPast ? '#22c55e' : 'rgba(200,134,10,0.1)' }} />
+                      )}
+                      <div className={`relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 ${isActive ? 'bg-[rgba(200,134,10,0.07)]' : 'hover:bg-[rgba(0,0,0,0.015)]'}`}>
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-[11px] font-bold transition-all duration-300"
+                          style={
+                            isPast ? { background: '#22c55e', color: 'white' }
+                            : isActive ? { background: 'linear-gradient(135deg, #b8600a, #d4820a)', color: 'white', boxShadow: '0 4px 14px rgba(184,96,10,0.28)' }
+                            : { background: 'rgba(200,134,10,0.07)', color: '#c8a060' }
+                          }
+                        >
+                          {isPast ? (
+                            <svg width="13" height="13" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                          ) : `0${s.id}`}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12.5px] font-semibold leading-tight truncate" style={{ color: isActive ? '#1a0800' : isPast ? '#4a2a08' : '#9a7040', fontFamily: 'Noto Sans Devanagari, sans-serif' }}>{s.label}</p>
+                          <p className="text-[10px] leading-tight mt-0.5 truncate" style={{ color: isActive ? '#9a6030' : '#c8a878', fontFamily: 'Noto Sans Devanagari, sans-serif' }}>{s.sublabel}</p>
+                        </div>
+                        {isActive && <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#c8860a' }} />}
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
 
-                    {step === 1 && <Step1BasicInfo register={register} watch={watch} setValue={setValue} errors={errors} />}
-                    {step === 2 && <Step2Professional register={register} watch={watch} setValue={setValue} control={control} errors={errors} />}
-                    {step === 3 && <Step3CategoryDetails register={register} errors={errors} />}
-                    {step === 4 && <Step4Documents register={register} setValue={setValue} watch={watch} errors={errors} />}
-                    {step === 5 && <Step5Nominator register={register} watch={watch} errors={errors} />}
-                    {step === 6 && <Step6Declaration register={register} watch={watch} errors={errors} />}
-                  </motion.div>
-                </AnimatePresence>
+              <div className="px-7 py-4 border-t border-[rgba(200,134,10,0.08)]" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf4)' }}>
+                <p className="text-[10.5px] text-[#b8a060] leading-relaxed" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                  <span className="text-red-400 font-bold">*</span> चिह्नित फ़ील्ड अनिवार्य हैं।<br />भरे फ़ील्ड हरे रंग में दिखेंगे।
+                </p>
+              </div>
+            </div>
+          </div>
 
-                <div className="flex flex-col gap-4 mt-12 pt-8 border-t border-slate-100">
-                  {stepError && <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold uppercase tracking-tight">{stepError}</div>}
-                  {submitError && <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold uppercase tracking-tight">Error: {submitError}</div>}
+          {/* ── FORM CARD ── */}
+          <div className="flex-1 min-w-0">
+            <div className="bg-white rounded-3xl border border-[rgba(200,134,10,0.12)] shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden">
 
-                  <div className="flex justify-between w-full">
-                    <button type="button" onClick={handlePrevStep} disabled={step === 1 || isSubmitting} className={`px-6 py-3.5 rounded-xl font-bold transition-all duration-200 shadow-sm ${step === 1 || isSubmitting ? "bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100" : "bg-white border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 active:scale-95"}`}>Back</button>
+              <div className="px-6 sm:px-8 md:px-10 pt-7 pb-6 border-b border-[rgba(200,134,10,0.1)]" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf4)' }}>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[9.5px] font-bold uppercase text-[#b8700a] mb-1.5">चरण {step} / {totalSteps}</p>
+                    <h3 className="text-[#1a0800] font-bold leading-snug" style={{ fontFamily: 'Noto Serif Devanagari, serif', fontSize: 'clamp(18px, 3vw, 24px)', paddingTop: '0.04em' }}>
+                      {STEPS[step - 1].label}
+                    </h3>
+                    <p className="text-[12.5px] text-[#9a6030] mt-1" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>{STEPS[step - 1].sublabel}</p>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0 mt-1">
+                    {STEPS.map((s) => (
+                      <div key={s.id} className="rounded-full transition-all duration-300"
+                        style={{ width: s.id === step ? 22 : 7, height: 7, background: s.id < step ? '#22c55e' : s.id === step ? '#c8860a' : 'rgba(200,134,10,0.13)' }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 sm:px-8 md:px-10 py-8">
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <AnimatePresence mode="wait" custom={direction}>
+                    <motion.div key={step} custom={direction} variants={formVariants} initial="hidden" animate="visible" exit="exit">
+                      {step === 1 && <Step1BasicInfo register={register} watch={watch} setValue={setValue} errors={errors} />}
+                      {step === 2 && <Step2Professional register={register} watch={watch} setValue={setValue} control={control} errors={errors} />}
+                      {step === 3 && <Step3CategoryDetails register={register} errors={errors} watch={watch} />}
+                      {step === 4 && <Step4Documents register={register} setValue={setValue} watch={watch} errors={errors} />}
+                      {step === 5 && <Step5Nominator register={register} watch={watch} errors={errors} />}
+                      {step === 6 && <Step6Declaration register={register} watch={watch} errors={errors} />}
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {(stepError || submitError) && (
+                    <div className="mt-6 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                      <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                      </svg>
+                      <p className="text-[13px] font-medium text-red-700" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                        {stepError || `त्रुटि: ${submitError}`}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="mt-10 pt-6 border-t border-[rgba(200,134,10,0.1)] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={handlePrevStep}
+                      disabled={step === 1 || isSubmitting}
+                      className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border-2 font-semibold text-[13.5px] transition-all duration-200 disabled:opacity-35 disabled:cursor-not-allowed hover:bg-[rgba(200,134,10,0.04)]"
+                      style={{ borderColor: 'rgba(200,134,10,0.28)', color: '#7a4010', fontFamily: 'Noto Sans Devanagari, sans-serif' }}
+                    >
+                      <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 5l-7 7 7 7" /></svg>
+                      पिछला चरण
+                    </button>
+
                     {step < totalSteps ? (
-                      <button type="button" onClick={handleNextStep} className="px-10 py-3.5 rounded-xl font-black uppercase tracking-widest text-white bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/20 active:scale-95 transition-all">Next Step</button>
+                      <button
+                        type="button"
+                        onClick={handleNextStep}
+                        className="flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl text-white font-bold text-[13.5px] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] shadow-[0_4px_20px_rgba(184,96,10,0.26)]"
+                        style={{ background: 'linear-gradient(135deg, #b8600a, #cf7610)', fontFamily: 'Noto Sans Devanagari, sans-serif' }}
+                      >
+                        अगला चरण
+                        <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" /></svg>
+                      </button>
                     ) : (
-                      <button type="submit" disabled={isSubmitting} className={`px-10 py-3.5 rounded-xl font-black uppercase tracking-widest shadow-2xl transition-all flex items-center ${isSubmitting ? "bg-slate-600 text-slate-300 cursor-not-allowed" : "bg-slate-900 text-amber-500 hover:bg-black shadow-slate-900/30 active:scale-95"}`}>
-                        {isSubmitting ? "Processing..." : "Submit Nomination"}
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl font-bold text-[13.5px] text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{ background: isSubmitting ? '#9ca3af' : 'linear-gradient(135deg, #7b1e1e, #9c2a2a)', boxShadow: isSubmitting ? 'none' : '0 6px 24px rgba(123,30,30,0.28)', fontFamily: 'Noto Sans Devanagari, sans-serif' }}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                            जमा हो रहा है...
+                          </>
+                        ) : (
+                          <>
+                            <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                            नामांकन जमा करें
+                          </>
+                        )}
                       </button>
                     )}
                   </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

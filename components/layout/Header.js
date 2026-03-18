@@ -2,287 +2,280 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const StarIcon = () => (
-  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
-  </svg>
-);
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) setIsMobileMenuOpen(false);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [isMobileMenuOpen]);
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/rules', label: 'Guidelines' },
+    { href: '/', label: 'होम' },
+    { href: '/about', label: 'परिचय' },
+    { href: '/rules', label: 'नियमावली' },
   ];
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito+Sans:wght@400;600;700&display=swap');
-        .header-cinzel { font-family: 'Cinzel', serif; }
-        .header-nunito { font-family: 'Nunito Sans', sans-serif; }
-        
-        .gold-shimmer-border {
-          position: relative;
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Serif+Devanagari:wght@600;700&display=swap');
+
+        .hdr-font { font-family: 'Noto Sans Devanagari', sans-serif; }
+        .hdr-serif { font-family: 'Noto Serif Devanagari', serif; }
+
+        @keyframes hdr-sweep {
+          0% { transform: translateX(-120%); }
+          100% { transform: translateX(300%); }
         }
-        .gold-shimmer-border::before {
+        .hdr-bar-shine::after {
           content: '';
           position: absolute;
-          inset: 0;
-          padding: 1px;
-          border-radius: inherit;
-          background: linear-gradient(90deg, rgba(212,160,23,0.1), rgba(212,160,23,0.5), rgba(212,160,23,0.1));
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          pointer-events: none;
+          inset-y: 0;
+          width: 30%;
+          background: linear-gradient(90deg, transparent, rgba(255,220,130,0.12), transparent);
+          animation: hdr-sweep 4s ease-in-out infinite;
         }
-        
-        .nav-link-underline {
+
+        @keyframes hdr-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.3; transform: scale(0.65); }
+        }
+        .hdr-dot-pulse { animation: hdr-pulse 2.2s ease-in-out infinite; }
+
+        @keyframes hdr-spin {
+          to { transform: rotate(360deg); }
+        }
+        .hdr-logo-ring { animation: hdr-spin 10s linear infinite; }
+
+        .hdr-nav-link {
           position: relative;
+          font-family: 'Noto Sans Devanagari', sans-serif;
+          font-size: 13.5px;
+          font-weight: 600;
+          color: #3a2010;
+          text-decoration: none;
+          padding: 6px 14px;
+          border-radius: 4px;
+          letter-spacing: 0.01em;
+          transition: color 0.2s, background 0.2s;
         }
-        .nav-link-underline::after {
+        .hdr-nav-link::after {
           content: '';
           position: absolute;
-          bottom: -2px;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, #f5c842, #d4a017);
+          bottom: 0; left: 14px; right: 14px;
+          height: 2px;
+          background: linear-gradient(90deg, #b8600a, #e8a820);
+          border-radius: 1px;
           transform: scaleX(0);
           transform-origin: center;
-          transition: transform 0.3s ease;
+          transition: transform 0.25s ease;
         }
-        .nav-link-underline:hover::after {
-          transform: scaleX(1);
+        .hdr-nav-link:hover { color: #b8600a; background: rgba(184,96,10,0.05); }
+        .hdr-nav-link:hover::after { transform: scaleX(1); }
+
+        .hdr-cta {
+          position: relative;
+          overflow: hidden;
+          transition: transform 0.2s, box-shadow 0.2s;
         }
+        .hdr-cta::before {
+          content: '';
+          position: absolute;
+          top: 0; left: -80%;
+          width: 50%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transition: left 0.5s ease;
+        }
+        .hdr-cta:hover::before { left: 140%; }
+        .hdr-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(184,96,10,0.38) !important; }
+
+        .hdr-drawer-panel {
+          transform: translateX(100%);
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hdr-drawer-panel.open { transform: translateX(0); }
+
+        /* ── Google Translate widget overrides ── */
+        .goog-te-gadget { font-size: 0 !important; line-height: 0 !important; }
+        .goog-te-gadget .goog-te-combo {
+          font-family: 'Noto Sans Devanagari', sans-serif !important;
+          font-size: 11.5px !important;
+          font-weight: 600 !important;
+          color: #5a3008 !important;
+          background: #fdf4d8 !important;
+          border: 1.5px solid rgba(184,96,10,0.3) !important;
+          border-radius: 4px !important;
+          padding: 6px 10px !important;
+          cursor: pointer !important;
+          outline: none !important;
+          appearance: auto !important;
+          max-width: 130px !important;
+          transition: border-color 0.2s, background 0.2s !important;
+        }
+        .goog-te-gadget .goog-te-combo:hover {
+          border-color: rgba(184,96,10,0.65) !important;
+          background: #faebbf !important;
+        }
+        .goog-logo-link, .goog-te-gadget > span { display: none !important; }
       `}</style>
 
+      {/* ── Announcement Bar ── */}
+      <div className="hdr-font hdr-bar-shine relative overflow-hidden bg-gradient-to-r from-[#6b1414] via-[#8b2020] to-[#6b1414] text-[#fde8c0] py-[7px] px-4 text-center text-[11.5px] font-medium">
+        <span className="relative z-10 inline-flex items-center justify-center gap-2.5 flex-wrap">
+          नामांकन की अंतिम तिथि
+          <span className="hdr-dot-pulse inline-block w-[5px] h-[5px] rounded-full bg-[#f5c842] flex-shrink-0" />
+          <strong className="text-[#f5c842] font-bold">20 मई 2026</strong>
+          <span className="hdr-dot-pulse inline-block w-[5px] h-[5px] rounded-full bg-[#f5c842] flex-shrink-0" />
+          <a href="/nominate" className="underline underline-offset-2 decoration-[rgba(253,232,192,0.35)] hover:text-white transition-colors duration-200">
+            अभी नामांकन करें →
+          </a>
+        </span>
+      </div>
+
+      {/* ── Main Header ── */}
       <header
-        className="sticky top-0 z-40 transition-all duration-500"
-        style={{
-          background: scrolled
-            ? 'rgba(5, 5, 10, 0.92)'
-            : 'rgba(5, 5, 10, 0.7)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: scrolled
-            ? '1px solid rgba(212, 160, 23, 0.15)'
-            : '1px solid rgba(255, 255, 255, 0.04)',
-          boxShadow: scrolled ? '0 4px 40px rgba(0,0,0,0.6)' : 'none',
-        }}
+        className={`hdr-font sticky top-0 z-50 bg-[#fffdf7] transition-all duration-300 ${
+          scrolled
+            ? 'shadow-[0_2px_20px_rgba(120,40,0,0.09)] border-b border-[rgba(200,134,10,0.18)]'
+            : 'border-b border-[rgba(200,134,10,0.07)]'
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-18 md:h-20 gap-4">
+        <div className="max-w-7xl mx-auto px-5 md:px-10 flex items-center justify-between h-[70px] md:h-[78px] gap-4">
 
-            {/* ── Logo ── */}
-            <div className="flex-shrink-0">
-              <Link href="/" className="group flex items-center gap-3">
-                <div className="relative">
-                  <div
-                    className="absolute inset-0 rounded-full blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-500"
-                    style={{ background: 'radial-gradient(circle, #d4a017, transparent 70%)' }}
-                  />
-                  <img
-                    src="/logo.png"
-                    alt="Samrat Vikramaditya Samman"
-                    className="relative w-12 md:w-14 h-auto object-contain transition-transform duration-500 group-hover:scale-105"
-                    style={{ filter: 'drop-shadow(0 4px 12px rgba(212,160,23,0.3))' }}
-                  />
-                </div>
-                {/* Text mark — visible on larger screens */}
-                <div className="hidden md:block">
-                  <p className="header-cinzel text-[10px] text-amber-500/50 tracking-[0.25em] uppercase font-semibold leading-none mb-0.5">
-                    Vikramaditya
-                  </p>
-                  <p className="header-cinzel text-sm text-amber-100 font-bold tracking-wider leading-none">
-                    Samman
-                  </p>
-                </div>
-              </Link>
-            </div>
-
-            {/* ── Desktop Nav ── */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="header-cinzel nav-link-underline px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/50 hover:text-amber-300 transition-colors duration-300"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* ── Right side: translate + nominate CTA ── */}
-            <div className="flex items-center gap-3 md:gap-4">
-              {/* Google Translate widget slot */}
-              <div
-                id="google_translate_element"
-                className="flex items-center justify-center"
+          {/* ── Logo ── */}
+          <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
+            <div className="relative w-12 h-12 flex-shrink-0">
+              <div className="hdr-logo-ring absolute inset-[-3px] rounded-full opacity-50"
+                style={{ background: 'conic-gradient(from 0deg, #c8860a, #f5c842, #9a6008, #c8860a)' }} />
+              <div className="absolute inset-[2px] rounded-full bg-[#fffdf7] z-10" />
+              <img
+                src="/logo_9.png"
+                alt="सम्राट विक्रमादित्य सम्मान"
+                className="relative z-20 w-full h-full object-contain rounded-full p-1"
               />
-
-              {/* Nominate CTA — desktop */}
-              <Link
-                href="/nominate"
-                className="hidden lg:inline-flex items-center gap-2 header-cinzel px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-[0.2em] text-[#0a0a0f] transition-all duration-300 hover:scale-105 hover:brightness-110"
-                style={{
-                  background: 'linear-gradient(135deg, #f5c842 0%, #d4a017 60%, #b8860b 100%)',
-                  boxShadow: '0 0 20px rgba(212,160,23,0.3), 0 2px 8px rgba(0,0,0,0.4)',
-                }}
-              >
-                <StarIcon />
-                Nominate Now
-              </Link>
-
-              {/* Hamburger */}
-              <button
-                className="lg:hidden p-2 text-white/60 hover:text-amber-400 transition-colors focus:outline-none focus:ring-1 focus:ring-amber-500/50 rounded-lg"
-                onClick={() => setIsMobileMenuOpen(true)}
-                aria-label="Open Menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h12M4 18h8" />
-                </svg>
-              </button>
             </div>
+            <div className="hidden sm:flex flex-col leading-none gap-[5px]">
+              <span className="text-[9px] font-semibold tracking-[0.16em] uppercase text-[#b8700a]">
+                महाराजा विक्रमादित्य शोधपीठ
+              </span>
+              <span className="hdr-serif text-[18px] font-bold text-[#1e0e00] leading-none">
+                विक्रमादित्य सम्मान
+              </span>
+            </div>
+          </Link>
+
+          {/* ── Desktop Nav ── */}
+          <nav className="hidden lg:flex items-center gap-0.5">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} className="hdr-nav-link">
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          {/* ── Right side ── */}
+          <div className="flex items-center gap-3">
+
+            {/* Translate widget */}
+            <div id="google_translate_element" />
+
+            {/* Nominate CTA */}
+            <a
+              href="/nominate"
+              className="hdr-cta hidden lg:inline-flex items-center gap-2 bg-gradient-to-br from-[#b8600a] via-[#cf7610] to-[#9a4c06] text-white text-[12.5px] font-bold px-5 py-[9px] rounded-[3px] shadow-[0_4px_18px_rgba(184,96,10,0.28)]"
+              style={{ fontFamily: 'Noto Sans Devanagari, sans-serif', letterSpacing: '0.02em' }}
+            >
+              <svg width="7" height="7" viewBox="0 0 10 10" fill="currentColor" className="flex-shrink-0 opacity-80">
+                <path d="M5 0L10 5L5 10L0 5Z" />
+              </svg>
+              नामांकन करें
+            </a>
+
+            {/* Hamburger */}
+            <button
+              className="lg:hidden flex flex-col justify-center gap-[5px] w-9 h-9 p-2 rounded-[3px] border border-[rgba(184,96,10,0.2)] hover:border-[rgba(184,96,10,0.4)] hover:bg-[rgba(184,96,10,0.05)] transition-colors"
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="मेनू खोलें"
+            >
+              <span className="block h-[1.5px] bg-[#4a2a08] rounded-sm" />
+              <span className="block h-[1.5px] w-3/4 bg-[#4a2a08] rounded-sm" />
+              <span className="block h-[1.5px] w-1/2 bg-[#4a2a08] rounded-sm" />
+            </button>
           </div>
         </div>
       </header>
 
       {/* ── Mobile Drawer ── */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+      <div className={`fixed inset-0 z-[200] lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div
+          className="absolute inset-0 bg-[rgba(20,8,0,0.5)] backdrop-blur-sm"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+
+        <div className={`hdr-drawer-panel hdr-font absolute top-0 right-0 bottom-0 w-[min(296px,88vw)] flex flex-col bg-[#fffdf7] border-l border-[rgba(200,134,10,0.16)] shadow-[-12px_0_50px_rgba(0,0,0,0.14)] ${isMobileMenuOpen ? 'open' : ''}`}>
+
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(200,134,10,0.1)]">
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.png" alt="Logo" className="w-9 h-9 object-contain" />
+              <div className="flex flex-col gap-1 leading-none">
+                <span className="text-[8.5px] font-semibold tracking-[0.14em] uppercase text-[#b8700a]">महाराजा विक्रमादित्य</span>
+                <span className="hdr-serif text-[14px] font-bold text-[#1e0e00]">विक्रमादित्य सम्मान</span>
+              </div>
+            </div>
+            <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-[60] lg:hidden"
-              style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
-            />
-
-            {/* Drawer */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "tween", duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed top-0 right-0 bottom-0 w-72 z-[70] flex flex-col lg:hidden overflow-y-auto gold-shimmer-border"
-              style={{
-                background: 'linear-gradient(160deg, #0d0a02 0%, #05050a 100%)',
-                boxShadow: '-20px 0 60px rgba(0,0,0,0.8)',
-              }}
+              className="w-8 h-8 flex items-center justify-center rounded-full border border-[rgba(184,96,10,0.2)] hover:bg-[rgba(184,96,10,0.07)] transition-colors"
             >
-              {/* Drawer header */}
-              <div
-                className="flex items-center justify-between p-6"
-                style={{ borderBottom: '1px solid rgba(212,160,23,0.12)' }}
+              <svg width="11" height="11" fill="none" stroke="#9a5008" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <nav className="flex flex-col p-4 gap-1 flex-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3.5 rounded-[4px] text-[14px] font-semibold text-[#3a2010] hover:text-[#b8600a] hover:bg-[rgba(184,96,10,0.06)] transition-all"
+                style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}
               >
-                <div className="flex items-center gap-3">
-                  <img src="/logo.png" alt="Logo" className="w-10 h-auto"
-                    style={{ filter: 'drop-shadow(0 2px 8px rgba(212,160,23,0.4))' }}
-                  />
-                  <div>
-                    <p className="header-cinzel text-amber-400 text-xs font-bold tracking-[0.2em] uppercase">Vikramaditya</p>
-                    <p className="header-cinzel text-white/40 text-[10px] tracking-widest uppercase">Samman</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 rounded-full text-white/30 hover:text-white hover:bg-white/5 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c8860a] opacity-50 flex-shrink-0" />
+                {link.label}
+              </a>
+            ))}
 
-              {/* Nav links */}
-              <nav className="flex flex-col p-6 gap-1 flex-grow">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 + i * 0.06 }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-4 rounded-xl text-white/60 hover:text-amber-300 hover:bg-amber-500/5 transition-all duration-200"
-                    >
-                      <span className="text-amber-500/30">
-                        <StarIcon />
-                      </span>
-                      <span className="header-cinzel text-sm font-semibold uppercase tracking-[0.2em]">
-                        {link.label}
-                      </span>
-                    </Link>
-                  </motion.div>
-                ))}
+            <div className="my-3 h-px bg-gradient-to-r from-transparent via-[rgba(200,134,10,0.22)] to-transparent" />
 
-                {/* Divider */}
-                <div className="my-4 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,160,23,0.2), transparent)' }} />
+            <a
+              href="/nominate"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-[3px] bg-gradient-to-br from-[#b8600a] via-[#cf7610] to-[#9a4c06] text-white text-[13px] font-bold shadow-[0_4px_16px_rgba(184,96,10,0.25)]"
+              style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}
+            >
+              <svg width="7" height="7" viewBox="0 0 10 10" fill="currentColor">
+                <path d="M5 0L10 5L5 10L0 5Z" />
+              </svg>
+              अभी नामांकन करें
+            </a>
+          </nav>
 
-                {/* CTA in drawer */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Link
-                    href="/nominate"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full header-cinzel px-6 py-4 rounded-xl text-sm font-bold uppercase tracking-[0.2em] text-[#0a0a0f]"
-                    style={{
-                      background: 'linear-gradient(135deg, #f5c842, #d4a017)',
-                      boxShadow: '0 0 30px rgba(212,160,23,0.3)',
-                    }}
-                  >
-                    <StarIcon />
-                    Nominate Now
-                  </Link>
-                </motion.div>
-              </nav>
-
-              {/* Drawer footer */}
-              <div className="p-6" style={{ borderTop: '1px solid rgba(212,160,23,0.08)' }}>
-                <p className="header-nunito text-white/15 text-[10px] text-center uppercase tracking-[0.2em]">
-                  Maharaja Vikramaditya Shodhpeeth
-                </p>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          <div className="px-5 py-3 border-t border-[rgba(200,134,10,0.08)] text-center text-[9px] tracking-[0.16em] uppercase text-[#c8a870] font-medium"
+            style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+            संस्कृति विभाग · मध्यप्रदेश शासन
+          </div>
+        </div>
+      </div>
     </>
   );
 }
