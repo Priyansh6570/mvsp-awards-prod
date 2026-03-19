@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -90,6 +90,13 @@ export default function NominatePage() {
     setDirection(-1);
     setStep((p) => Math.max(p - 1, 1));
   };
+
+useEffect(() => {
+  const subscription = watch(() => {
+    if (submitError) setSubmitError("");
+  });
+  return () => subscription.unsubscribe();
+}, [watch, submitError]);
 
   const progress = Math.round(((step - 1) / (totalSteps - 1)) * 100);
 

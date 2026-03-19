@@ -602,7 +602,7 @@ export default function HomePage() {
             <GoldDivider />
 
             <p className="text-[14.5px] text-[#6a4010] leading-loose mb-10" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
-              संबंधित व्यक्ति अथवा संस्था का पृथक-पृथक उल्लेख करते हुए स्पष्ट अनुशंसाएँ नीचे उल्लिखित पते पर <strong className="text-[#9a4008] font-bold">20 मई 2026</strong> तक भेजना आमंत्रित हैं।
+              {/* संबंधित व्यक्ति अथवा संस्था का पृथक-पृथक उल्लेख करते हुए स्पष्ट अनुशंसाएँ नीचे उल्लिखित पते पर <strong className="text-[#9a4008] font-bold">20 मई 2026</strong> तक भेजना आमंत्रित हैं। */}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-10 text-left">

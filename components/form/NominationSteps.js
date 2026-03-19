@@ -132,12 +132,12 @@ export function Step1BasicInfo({ register, watch, setValue, errors }) {
 
       <div>
         <LabelRow required>मोबाइल नंबर</LabelRow>
-        <input type="tel" placeholder="+91 00000 00000" {...register("mobileNumber", { required: true })} className={fieldCls(errors.mobileNumber, w("mobileNumber"))} />
+        <input type="tel" placeholder="00000 00000" {...register("mobileNumber", { required: true })} className={fieldCls(errors.mobileNumber, w("mobileNumber"))} />
         <ErrMsg msg={errors.mobileNumber && 'मोबाइल नंबर आवश्यक है'} />
       </div>
       <div>
         <LabelRow>वैकल्पिक मोबाइल नंबर</LabelRow>
-        <input type="tel" placeholder="+91 00000 00000 (वैकल्पिक)" {...register("alternateMobileNumber")} className={fieldCls(null, w("alternateMobileNumber"))} />
+        <input type="tel" placeholder="00000 00000 (वैकल्पिक)" {...register("alternateMobileNumber")} className={fieldCls(null, w("alternateMobileNumber"))} />
       </div>
 
       <div>
