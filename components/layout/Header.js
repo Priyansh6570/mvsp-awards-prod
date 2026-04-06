@@ -136,9 +136,9 @@ export default function Header() {
           <span className="hdr-dot-pulse inline-block w-[5px] h-[5px] rounded-full bg-[#f5c842] flex-shrink-0" />
           <strong className="text-[#f5c842] font-bold">20 मई 2026</strong>
           <span className="hdr-dot-pulse inline-block w-[5px] h-[5px] rounded-full bg-[#f5c842] flex-shrink-0" />
-          <a href="/nominate" className="underline underline-offset-2 decoration-[rgba(253,232,192,0.35)] hover:text-white transition-colors duration-200">
+          <Link href="/nominate" className="underline underline-offset-2 decoration-[rgba(253,232,192,0.35)] hover:text-white transition-colors duration-200">
             अभी नामांकन करें →
-          </a>
+          </Link>
         </span>
       </div>
 
@@ -177,9 +177,9 @@ export default function Header() {
           {/* ── Desktop Nav ── */}
           <nav className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="hdr-nav-link">
+              <Link key={link.href} href={link.href} className="hdr-nav-link">
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -190,7 +190,7 @@ export default function Header() {
             <div id="google_translate_element" />
 
             {/* Nominate CTA */}
-            <a
+            <Link
               href="/nominate"
               className="hdr-cta hidden lg:inline-flex items-center gap-2 bg-gradient-to-br from-[#b8600a] via-[#cf7610] to-[#9a4c06] text-white text-[12.5px] font-bold px-5 py-[9px] rounded-[3px] shadow-[0_4px_18px_rgba(184,96,10,0.28)]"
               style={{ fontFamily: 'Noto Sans Devanagari, sans-serif', letterSpacing: '0.02em' }}
@@ -199,7 +199,7 @@ export default function Header() {
                 <path d="M5 0L10 5L5 10L0 5Z" />
               </svg>
               नामांकन करें
-            </a>
+            </Link>
 
             {/* Hamburger */}
             <button
@@ -244,7 +244,7 @@ export default function Header() {
 
           <nav className="flex flex-col p-4 gap-1 flex-1">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -253,12 +253,12 @@ export default function Header() {
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#c8860a] opacity-50 flex-shrink-0" />
                 {link.label}
-              </a>
+              </Link>
             ))}
 
             <div className="my-3 h-px bg-gradient-to-r from-transparent via-[rgba(200,134,10,0.22)] to-transparent" />
 
-            <a
+            <Link
               href="/nominate"
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center justify-center gap-2 py-3.5 rounded-[3px] bg-gradient-to-br from-[#b8600a] via-[#cf7610] to-[#9a4c06] text-white text-[13px] font-bold shadow-[0_4px_16px_rgba(184,96,10,0.25)]"
@@ -268,7 +268,7 @@ export default function Header() {
                 <path d="M5 0L10 5L5 10L0 5Z" />
               </svg>
               अभी नामांकन करें
-            </a>
+            </Link>
           </nav>
 
           <div className="px-5 py-3 border-t border-[rgba(200,134,10,0.08)] text-center text-[9px] tracking-[0.16em] uppercase text-[#c8a870] font-medium"

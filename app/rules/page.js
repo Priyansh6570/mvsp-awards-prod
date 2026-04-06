@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 
 const tabs = [
@@ -327,14 +328,14 @@ export default function RulesPage() {
               <p className="text-[11px] font-bold tracking-[0.24em] uppercase text-[#b8700a] mb-2" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>नामांकन की अंतिम तिथि</p>
               <p className="rl-serif text-[#1a0800] mb-4" style={{ fontSize: 'clamp(20px, 4vw, 30px)' }}>20 मई 2026</p>
               <div className="flex flex-wrap gap-3 justify-center">
-                <a
+                <Link
                   href="/nominate"
                   className="inline-flex items-center gap-2 text-white text-[13px] font-bold px-7 py-3 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-all duration-200 hover:-translate-y-0.5"
                   style={{ background: cfg.numBg, fontFamily: 'Noto Sans Devanagari, sans-serif' }}
                 >
                   <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0L10 5L5 10L0 5Z" /></svg>
                   नामांकन करें
-                </a>
+                </Link>
                 <a
                   href="mailto:samratvikramadityasamman@gmail.com"
                   className="inline-flex items-center gap-2 border text-[13px] font-semibold px-6 py-3 rounded-full transition-all duration-200 hover:bg-[rgba(200,134,10,0.05)]"

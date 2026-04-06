@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   const categoryData = [
     { name: 'अंतर्राष्ट्रीय सम्मान', amount: '₹1 करोड़ 1 लाख', desc: 'विश्वस्तरीय योगदान हेतु' },
@@ -85,14 +87,14 @@ export default function Footer() {
           </div>
 
           <div>
-            <a
+            <Link
               href="/nominate"
               className="ftr-cta-btn inline-flex items-center gap-2.5 bg-gradient-to-br from-[#c8860a] via-[#e8a820] to-[#b07208] text-[#1a0c00] text-[14px] font-bold px-8 py-3.5 rounded-full shadow-[0_6px_28px_rgba(200,134,10,0.35)]"
               style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}
             >
               <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor"><path d="M5 0L10 5L5 10L0 5Z" /></svg>
               अभी नामांकन करें
-            </a>
+            </Link>
           </div>
         </div>
       </div>

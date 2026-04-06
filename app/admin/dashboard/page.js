@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import {Link} from "next/link";
 
 function LineChart({ data }) {
   if (!data || data.length === 0) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 160, fontSize: 13, color: "#94a3b8" }}>No visitor data yet</div>;

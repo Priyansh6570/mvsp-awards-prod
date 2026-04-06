@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+// 1. useRef को इम्पोर्ट में शामिल करें
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -29,6 +30,9 @@ export default function NominatePage() {
   const [submitError, setSubmitError] = useState("");
   const [stepError, setStepError] = useState("");
 
+  // 2. फॉर्म के टॉप पर स्क्रॉल करने के लिए Ref बनाएँ
+  const formTopRef = useRef(null);
+
   const totalSteps = 6;
 
   const { register, handleSubmit, watch, setValue, trigger, control, formState: { errors } } = useForm({
@@ -55,6 +59,16 @@ export default function NominatePage() {
     { id: 6, reqFields: ["consentCheckbox","digitalSignature"] },
   ];
 
+  // 3. स्क्रॉल करने के लिए एक हेल्पर फंक्शन बनाएँ
+  const scrollToFormTop = () => {
+    if (formTopRef.current) {
+      // मोबाइल हेडर या स्टिकी नेविगेशन के लिए टॉप से थोड़ी जगह (-100px) छोड़ रहे हैं
+      const yOffset = -100; 
+      const y = formTopRef.current.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitError("");
@@ -67,6 +81,7 @@ export default function NominatePage() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "नामांकन जमा करने में त्रुटि हुई");
       setIsSuccess(true);
+      scrollToFormTop(); // सफलता संदेश दिखाने पर भी टॉप पर ले जाएँ
     } catch (error) {
       setSubmitError(error.message);
     } finally {
@@ -83,26 +98,32 @@ export default function NominatePage() {
     }
     setDirection(1);
     setStep((p) => Math.min(p + 1, totalSteps));
+    
+    // 4. स्टेप बदलने के बाद स्क्रॉल फंक्शन कॉल करें
+    setTimeout(scrollToFormTop, 50); 
   };
 
   const handlePrevStep = () => {
     setStepError("");
     setDirection(-1);
     setStep((p) => Math.max(p - 1, 1));
+    
+    // 4. पिछले स्टेप पर जाने पर भी स्क्रॉल फंक्शन कॉल करें
+    setTimeout(scrollToFormTop, 50);
   };
 
-useEffect(() => {
-  const subscription = watch(() => {
-    if (submitError) setSubmitError("");
-  });
-  return () => subscription.unsubscribe();
-}, [watch, submitError]);
+  useEffect(() => {
+    const subscription = watch(() => {
+      if (submitError) setSubmitError("");
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, submitError]);
 
   const progress = Math.round(((step - 1) / (totalSteps - 1)) * 100);
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-[#fffdf7] flex items-center justify-center p-5">
+      <div className="min-h-screen bg-[#fffdf7] flex items-center justify-center p-5" ref={formTopRef}>
         <motion.div
           initial={{ scale: 0.92, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -237,7 +258,8 @@ useEffect(() => {
           </div>
 
           {/* ── FORM CARD ── */}
-          <div className="flex-1 min-w-0">
+          {/* 5. यहाँ हमने ref=formTopRef को फॉर्म कंटेनर पर जोड़ दिया है */}
+          <div className="flex-1 min-w-0" ref={formTopRef}>
             <div className="bg-white rounded-3xl border border-[rgba(200,134,10,0.12)] shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden">
 
               <div className="px-6 sm:px-8 md:px-10 pt-7 pb-6 border-b border-[rgba(200,134,10,0.1)]" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf4)' }}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 const CHANNEL_ID = 'UCpeZ-d1AJUKlJtSKpiHuUJw';
 
@@ -247,10 +248,10 @@ export default function HomePage() {
               </p>
 
               <div className="flex flex-wrap gap-3.5">
-                <a href="/about" className="inline-flex items-center gap-2 border border-[rgba(200,134,10,0.4)] text-[rgba(245,220,160,0.85)] hover:text-[#f5c842] hover:border-[rgba(200,134,10,0.7)] hover:bg-[rgba(200,134,10,0.09)] text-[13.5px] font-semibold px-6 py-3 rounded-full transition-all duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                <Link href="/about" className="inline-flex items-center gap-2 border border-[rgba(200,134,10,0.4)] text-[rgba(245,220,160,0.85)] hover:text-[#f5c842] hover:border-[rgba(200,134,10,0.7)] hover:bg-[rgba(200,134,10,0.09)] text-[13.5px] font-semibold px-6 py-3 rounded-full transition-all duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
                   परिचय पढ़ें
                   <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -281,10 +282,10 @@ export default function HomePage() {
                   </div>
 
                   <div className="space-y-2.5">
-                    <a href="/nominate" className="pg-cta-primary flex items-center justify-center gap-2.5 w-full bg-gradient-to-br from-[#b8600a] via-[#cf7610] to-[#9a4c06] text-white text-[13.5px] font-bold py-3.5 rounded-2xl shadow-[0_6px_28px_rgba(184,96,10,0.35)]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                    <Link href="/nominate" className="pg-cta-primary flex items-center justify-center gap-2.5 w-full bg-gradient-to-br from-[#b8600a] via-[#cf7610] to-[#9a4c06] text-white text-[13.5px] font-bold py-3.5 rounded-2xl shadow-[0_6px_28px_rgba(184,96,10,0.35)]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
                       <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor" className="opacity-80"><path d="M5 0L10 5L5 10L0 5Z" /></svg>
                       नामांकन करें
-                    </a>
+                    </Link>
                     <div className="text-center">
                       <span className="text-[10.5px] text-[rgba(245,200,100,0.5)]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>अंतिम तिथि: <strong className="text-[rgba(245,200,66,0.75)]">20 मई 2026</strong></span>
                     </div>
@@ -396,10 +397,10 @@ export default function HomePage() {
                     </div>
                   </div>
                   <p className="text-[13.5px] text-[rgba(245,225,190,0.72)] leading-relaxed mb-6" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>{a.desc}</p>
-                  <a href="/nominate" className="pg-cta-primary inline-flex items-center gap-2 bg-gradient-to-r from-[rgba(200,134,10,0.25)] to-[rgba(200,134,10,0.1)] border border-[rgba(200,134,10,0.35)] text-[rgba(245,210,140,0.9)] hover:text-white text-[12.5px] font-bold px-5 py-2.5 rounded-full transition-colors duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                  <Link href="/nominate" className="pg-cta-primary inline-flex items-center gap-2 bg-gradient-to-r from-[rgba(200,134,10,0.25)] to-[rgba(200,134,10,0.1)] border border-[rgba(200,134,10,0.35)] text-[rgba(245,210,140,0.9)] hover:text-white text-[12.5px] font-bold px-5 py-2.5 rounded-full transition-colors duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
                     नामांकन करें
                     <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </a>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -477,10 +478,10 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                <a href="/about" className="inline-flex items-center gap-2 border border-[rgba(180,96,10,0.3)] text-[#7a4010] hover:border-[rgba(180,96,10,0.6)] hover:bg-[rgba(200,134,10,0.06)] text-[13.5px] font-semibold px-5 py-3 rounded-full transition-all duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                <Link href="/about" className="inline-flex items-center gap-2 border border-[rgba(180,96,10,0.3)] text-[#7a4010] hover:border-[rgba(180,96,10,0.6)] hover:bg-[rgba(200,134,10,0.06)] text-[13.5px] font-semibold px-5 py-3 rounded-full transition-all duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
                   सम्राट विक्रमादित्य का परिचय
                   <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -624,13 +625,13 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-wrap gap-4 justify-center">
-              <a href="/nominate" className="pg-cta-primary inline-flex items-center gap-2.5 text-white text-[13.5px] font-bold px-8 py-3.5 rounded-full shadow-[0_6px_24px_rgba(123,30,30,0.28)]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif', background: 'linear-gradient(135deg, #7b1e1e 0%, #9c2a2a 55%, #6b1414 100%)' }}>
+              <Link href="/nominate" className="pg-cta-primary inline-flex items-center gap-2.5 text-white text-[13.5px] font-bold px-8 py-3.5 rounded-full shadow-[0_6px_24px_rgba(123,30,30,0.28)]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif', background: 'linear-gradient(135deg, #7b1e1e 0%, #9c2a2a 55%, #6b1414 100%)' }}>
                 <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor" className="opacity-75"><path d="M5 0L10 5L5 10L0 5Z" /></svg>
                 नामांकन प्रारंभ करें
-              </a>
-              <a href="/rules" className="inline-flex items-center gap-2 border border-[rgba(180,96,10,0.3)] text-[#7a4010] hover:border-[rgba(180,96,10,0.6)] hover:bg-[rgba(200,134,10,0.06)] text-[13px] font-semibold px-6 py-3.5 rounded-full transition-all duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+              </Link>
+              <Link href="/rules" className="inline-flex items-center gap-2 border border-[rgba(180,96,10,0.3)] text-[#7a4010] hover:border-[rgba(180,96,10,0.6)] hover:bg-[rgba(200,134,10,0.06)] text-[13px] font-semibold px-6 py-3.5 rounded-full transition-all duration-200" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
                 नियमावली पढ़ें
-              </a>
+              </Link>
             </div>
           </div>
         </section>
