@@ -22,6 +22,7 @@ export default function Header() {
     { href: '/', label: 'होम' },
     { href: '/about', label: 'परिचय' },
     { href: '/rules', label: 'नियमावली' },
+    { href: '/download-forms', label: 'प्रपत्र डाउनलोड' },
     { href: '/nomination_guide', label: 'नामांकन सहायिका' },
   ];
 

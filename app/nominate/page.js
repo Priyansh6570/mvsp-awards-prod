@@ -1,11 +1,11 @@
 "use client";
 
-// 1. useRef को इम्पोर्ट में शामिल करें
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Step1BasicInfo, Step2Professional, Step3CategoryDetails, Step4Documents, Step5Nominator, Step6Declaration } from "@/components/form/NominationSteps";
+import DevFillButton from "@/components/dev/DevFillButton";
 
 const formVariants = {
   hidden: (d) => ({ opacity: 0, x: d > 0 ? 24 : -24 }),
@@ -22,6 +22,22 @@ const STEPS = [
   { id: 6, label: "घोषणा", sublabel: "सहमति एवं हस्ताक्षर" },
 ];
 
+// ─── localStorage keys (persist across tab close & browser restart) ───
+const STORAGE_KEY = "svs_nomination_draft_v1";
+const STORAGE_STEP_KEY = "svs_nomination_step_v1";
+const STORAGE_TIMESTAMP_KEY = "svs_nomination_saved_at_v1";
+
+// ─── Default form values (kept identical to original) ───
+const DEFAULT_VALUES = {
+  awardType: "National",
+  nominationType: "Self",
+  isPreferredLanguageOther: false,
+  isCategoryDomainOther: false,
+  keySuccesses: [""],
+  awardsReceivedList: [""],
+  workAffiliationType: "Individual",
+};
+
 export default function NominatePage() {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
@@ -30,22 +46,18 @@ export default function NominatePage() {
   const [submitError, setSubmitError] = useState("");
   const [stepError, setStepError] = useState("");
 
-  // 2. फॉर्म के टॉप पर स्क्रॉल करने के लिए Ref बनाएँ
-  const formTopRef = useRef(null);
+  // ─── Persistence-related state ───
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showRestoredToast, setShowRestoredToast] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  const formTopRef = useRef(null);
   const totalSteps = 6;
 
-  const { register, handleSubmit, watch, setValue, trigger, control, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, setValue, trigger, control, reset, getValues, formState: { errors } } = useForm({
     mode: "onChange",
-    defaultValues: {
-      awardType: "National",
-      nominationType: "Self",
-      isPreferredLanguageOther: false,
-      isCategoryDomainOther: false,
-      keySuccesses: [""],
-      awardsReceivedList: [""],
-      workAffiliationType: "Individual",
-    },
+    defaultValues: DEFAULT_VALUES,
   });
 
   const watchNominationType = watch("nominationType");
@@ -59,14 +71,110 @@ export default function NominatePage() {
     { id: 6, reqFields: ["consentCheckbox","digitalSignature"] },
   ];
 
-  // 3. स्क्रॉल करने के लिए एक हेल्पर फंक्शन बनाएँ
+  // ════════════════════════════════════════════════════════════════
+  //  RESTORE FROM localStorage ON MOUNT
+  // ════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const savedStep = localStorage.getItem(STORAGE_STEP_KEY);
+      const savedAt = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Merge with defaults so that any new fields added later don't break
+        reset({ ...DEFAULT_VALUES, ...parsed });
+
+        if (savedStep) {
+          const stepNum = parseInt(savedStep, 10);
+          if (!isNaN(stepNum) && stepNum >= 1 && stepNum <= totalSteps) {
+            setStep(stepNum);
+          }
+        }
+
+        if (savedAt) {
+          setLastSavedAt(parseInt(savedAt, 10));
+        }
+
+        // Show "data restored" toast briefly
+        setShowRestoredToast(true);
+        setTimeout(() => setShowRestoredToast(false), 4500);
+      }
+    } catch (err) {
+      console.warn("Could not restore form draft:", err);
+    } finally {
+      setIsHydrated(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ════════════════════════════════════════════════════════════════
+  //  AUTO-SAVE TO localStorage (debounced via watch subscription)
+  // ════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    let saveTimer = null;
+
+    const subscription = watch((data) => {
+      if (submitError) setSubmitError("");
+      // Debounce 400ms so we don't write on every keystroke
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          const now = Date.now();
+          localStorage.setItem(STORAGE_TIMESTAMP_KEY, String(now));
+          setLastSavedAt(now);
+        } catch (err) {
+          console.warn("Could not save form draft:", err);
+        }
+      }, 400);
+    });
+
+    return () => {
+      if (saveTimer) clearTimeout(saveTimer);
+      subscription.unsubscribe();
+    };
+  }, [watch, submitError, isHydrated]);
+
+  // Save current step number whenever it changes
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      localStorage.setItem(STORAGE_STEP_KEY, String(step));
+    } catch (err) {
+      console.warn("Could not save step:", err);
+    }
+  }, [step, isHydrated]);
+
+  // ════════════════════════════════════════════════════════════════
+
   const scrollToFormTop = () => {
     if (formTopRef.current) {
-      // मोबाइल हेडर या स्टिकी नेविगेशन के लिए टॉप से थोड़ी जगह (-100px) छोड़ रहे हैं
-      const yOffset = -100; 
+      const yOffset = -100;
       const y = formTopRef.current.getBoundingClientRect().top + window.scrollY + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
+  };
+
+  const clearStorage = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_STEP_KEY);
+      localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+    } catch (err) {
+      console.warn("Could not clear storage:", err);
+    }
+  };
+
+  const handleResetConfirm = () => {
+    clearStorage();
+    setShowResetModal(false);
+    // Brief delay so the modal close animation plays before reload.
+    // Reload ensures all field values, file upload component state, and
+    // any internal state in child components is wiped cleanly.
+    setTimeout(() => window.location.reload(), 150);
   };
 
   const onSubmit = async (data) => {
@@ -80,8 +188,12 @@ export default function NominatePage() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "नामांकन जमा करने में त्रुटि हुई");
+
+      // ─── Clear saved draft on successful submit ───
+      clearStorage();
+
       setIsSuccess(true);
-      scrollToFormTop(); // सफलता संदेश दिखाने पर भी टॉप पर ले जाएँ
+      scrollToFormTop();
     } catch (error) {
       setSubmitError(error.message);
     } finally {
@@ -98,28 +210,28 @@ export default function NominatePage() {
     }
     setDirection(1);
     setStep((p) => Math.min(p + 1, totalSteps));
-    
-    // 4. स्टेप बदलने के बाद स्क्रॉल फंक्शन कॉल करें
-    setTimeout(scrollToFormTop, 50); 
+    setTimeout(scrollToFormTop, 50);
   };
 
   const handlePrevStep = () => {
     setStepError("");
     setDirection(-1);
     setStep((p) => Math.max(p - 1, 1));
-    
-    // 4. पिछले स्टेप पर जाने पर भी स्क्रॉल फंक्शन कॉल करें
     setTimeout(scrollToFormTop, 50);
   };
 
-  useEffect(() => {
-    const subscription = watch(() => {
-      if (submitError) setSubmitError("");
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, submitError]);
-
   const progress = Math.round(((step - 1) / (totalSteps - 1)) * 100);
+
+  // Format saved-at into a readable Hindi label
+  const savedAtLabel = (() => {
+    if (!lastSavedAt) return null;
+    const diff = Math.floor((Date.now() - lastSavedAt) / 1000);
+    if (diff < 5) return "अभी सहेजा गया";
+    if (diff < 60) return `${diff} सेकंड पहले सहेजा गया`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} मिनट पहले सहेजा गया`;
+    const d = new Date(lastSavedAt);
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} पर सहेजा गया`;
+  })();
 
   if (isSuccess) {
     return (
@@ -159,17 +271,142 @@ export default function NominatePage() {
       `}</style>
 
       <div className="min-h-screen bg-[#fffdf7]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+        {/* ─────────── RESTORED-DATA TOAST ─────────── */}
+        <AnimatePresence>
+          {showRestoredToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] max-w-[90vw]"
+            >
+              <div className="flex items-start gap-3 bg-white border border-[#86efac] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-4 py-3 pr-5">
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold text-[#1a0800]" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                    आपका सहेजा गया डेटा पुनः लोड हो गया
+                  </p>
+                  <p className="text-[11.5px] text-[#6a4010] mt-0.5" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                    जहाँ छोड़ा था वहीं से जारी रखें
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowRestoredToast(false)}
+                  className="w-6 h-6 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 flex-shrink-0 transition-colors"
+                  aria-label="बंद करें"
+                >
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ─────────── RESET CONFIRMATION MODAL ─────────── */}
+        <AnimatePresence>
+          {showResetModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm flex items-center justify-center p-5"
+              onClick={() => setShowResetModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0, y: 12 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 8 }}
+                transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-3xl shadow-[0_24px_80px_rgba(0,0,0,0.2)] max-w-md w-full overflow-hidden border border-[rgba(200,134,10,0.15)]"
+              >
+                {/* Top accent strip */}
+                <div className="h-1.5" style={{ background: 'linear-gradient(90deg, #dc2626, #f87171, #dc2626)' }} />
+
+                <div className="p-7">
+                  {/* Icon */}
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: 'linear-gradient(135deg, #fee2e2, #fecaca)' }}>
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </div>
+
+                  {/* Heading */}
+                  <h3 className="text-center text-[19px] font-bold text-[#1a0800] mb-2" style={{ fontFamily: 'Noto Serif Devanagari, serif', paddingTop: '0.04em' }}>
+                    क्या आप फ़ॉर्म रीसेट करना चाहते हैं?
+                  </h3>
+
+                  {/* Body */}
+                  <p className="text-center text-[13.5px] text-[#6a4010] leading-relaxed mb-6" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                    इससे आपके द्वारा भरी गई सभी जानकारी एवं अपलोड किए गए दस्तावेज़ हटा दिए जाएँगे। यह क्रिया वापस नहीं की जा सकती।
+                  </p>
+
+                  {/* Warning chip */}
+                  <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5 mb-6">
+                    <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-[12px] text-red-700 leading-relaxed" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                      सहेजा गया मसौदा (draft) भी पूरी तरह हट जाएगा।
+                    </p>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex flex-col-reverse sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetModal(false)}
+                      className="flex-1 px-5 py-3 rounded-2xl border-2 font-semibold text-[13.5px] text-[#7a4010] hover:bg-[rgba(200,134,10,0.04)] transition-colors"
+                      style={{ borderColor: 'rgba(200,134,10,0.3)', fontFamily: 'Noto Sans Devanagari, sans-serif' }}
+                    >
+                      रद्द करें
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetConfirm}
+                      className="flex-1 px-5 py-3 rounded-2xl text-white font-bold text-[13.5px] shadow-[0_4px_16px_rgba(220,38,38,0.28)] hover:-translate-y-0.5 active:scale-[0.98] transition-all"
+                      style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', fontFamily: 'Noto Sans Devanagari, sans-serif' }}
+                    >
+                      हाँ, रीसेट करें
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── MOBILE PROGRESS HEADER ── */}
         <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-[rgba(200,134,10,0.15)] shadow-[0_2px_12px_rgba(0,0,0,0.06)] px-5 py-3.5">
           <div className="flex items-center justify-between mb-2">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-[9.5px] font-bold uppercase text-[#b8700a]">चरण {step} / {totalSteps}</p>
-              <p className="text-[14px] font-semibold text-[#1a0800] leading-tight" style={{ fontFamily: 'Noto Serif Devanagari, serif', paddingTop: '0.04em' }}>
+              <p className="text-[14px] font-semibold text-[#1a0800] leading-tight truncate" style={{ fontFamily: 'Noto Serif Devanagari, serif', paddingTop: '0.04em' }}>
                 {STEPS[step - 1].label}
               </p>
             </div>
-            <span className="text-[20px] font-bold" style={{ color: '#c8860a', fontFamily: 'Noto Serif Devanagari, serif' }}>{progress}%</span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="text-[20px] font-bold" style={{ color: '#c8860a', fontFamily: 'Noto Serif Devanagari, serif' }}>{progress}%</span>
+              <button
+                type="button"
+                onClick={() => setShowResetModal(true)}
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors"
+                aria-label="फ़ॉर्म रीसेट करें"
+                title="फ़ॉर्म रीसेट करें"
+              >
+                <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 12a7 7 0 11-7-7m0 0V2m0 3l3-3m-3 3l-3-3" />
+                </svg>
+              </button>
+            </div>
           </div>
           <div className="w-full bg-[rgba(200,134,10,0.1)] rounded-full h-2 overflow-hidden">
             <motion.div
@@ -201,7 +438,7 @@ export default function NominatePage() {
             <div className="sticky top-8 bg-white border border-[rgba(200,134,10,0.14)] rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.07)]">
 
               <div className="px-7 pt-7 pb-5 border-b border-[rgba(200,134,10,0.1)]" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf4)' }}>
-                <p className="text-[9.5px] font-bold  uppercase text-[#b8700a] mb-1">महाराजा विक्रमादित्य शोधपीठ</p>
+                <p className="text-[9.5px] font-bold uppercase text-[#b8700a] mb-1">महाराजा विक्रमादित्य शोधपीठ</p>
                 <h2 className="text-[18px] font-bold text-[#1a0800] leading-snug" style={{ fontFamily: 'Noto Serif Devanagari, serif', paddingTop: '0.04em' }}>नामांकन प्रपत्र</h2>
                 <p className="text-[11px] text-[#9a6030] mt-0.5">सम्राट विक्रमादित्य सम्मान 2026</p>
               </div>
@@ -249,6 +486,21 @@ export default function NominatePage() {
                 })}
               </div>
 
+              {/* ── Auto-save status row ── */}
+              {savedAtLabel && (
+                <div className="px-7 py-3 border-t border-[rgba(200,134,10,0.08)] bg-[#f0fdf4]/50">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-60" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
+                    </span>
+                    <span className="text-[10.5px] font-medium text-green-700" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                      {savedAtLabel}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="px-7 py-4 border-t border-[rgba(200,134,10,0.08)]" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf4)' }}>
                 <p className="text-[10.5px] text-[#b8a060] leading-relaxed" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
                   <span className="text-red-400 font-bold">*</span> चिह्नित फ़ील्ड अनिवार्य हैं।<br />भरे फ़ील्ड हरे रंग में दिखेंगे।
@@ -258,25 +510,41 @@ export default function NominatePage() {
           </div>
 
           {/* ── FORM CARD ── */}
-          {/* 5. यहाँ हमने ref=formTopRef को फॉर्म कंटेनर पर जोड़ दिया है */}
           <div className="flex-1 min-w-0" ref={formTopRef}>
             <div className="bg-white rounded-3xl border border-[rgba(200,134,10,0.12)] shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden">
 
               <div className="px-6 sm:px-8 md:px-10 pt-7 pb-6 border-b border-[rgba(200,134,10,0.1)]" style={{ background: 'linear-gradient(160deg, #fdf8ee, #fffcf4)' }}>
                 <div className="flex items-start justify-between gap-4">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-[9.5px] font-bold uppercase text-[#b8700a] mb-1.5">चरण {step} / {totalSteps}</p>
                     <h3 className="text-[#1a0800] font-bold leading-snug" style={{ fontFamily: 'Noto Serif Devanagari, serif', fontSize: 'clamp(18px, 3vw, 24px)', paddingTop: '0.04em' }}>
                       {STEPS[step - 1].label}
                     </h3>
                     <p className="text-[12.5px] text-[#9a6030] mt-1" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>{STEPS[step - 1].sublabel}</p>
                   </div>
-                  <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0 mt-1">
-                    {STEPS.map((s) => (
-                      <div key={s.id} className="rounded-full transition-all duration-300"
-                        style={{ width: s.id === step ? 22 : 7, height: 7, background: s.id < step ? '#22c55e' : s.id === step ? '#c8860a' : 'rgba(200,134,10,0.13)' }}
-                      />
-                    ))}
+
+                  <div className="flex items-start gap-3 flex-shrink-0">
+                    <div className="hidden sm:flex items-center gap-1.5 mt-1">
+                      {STEPS.map((s) => (
+                        <div key={s.id} className="rounded-full transition-all duration-300"
+                          style={{ width: s.id === step ? 22 : 7, height: 7, background: s.id < step ? '#22c55e' : s.id === step ? '#c8860a' : 'rgba(200,134,10,0.13)' }}
+                        />
+                      ))}
+                    </div>
+
+                    {/* ── Desktop reset button ── */}
+                    <button
+                      type="button"
+                      onClick={() => setShowResetModal(true)}
+                      className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11.5px] font-semibold text-red-600 hover:bg-red-50 border border-red-200/60 hover:border-red-300 transition-all"
+                      style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}
+                      title="फ़ॉर्म रीसेट करें"
+                    >
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.4" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 12a7 7 0 11-7-7m0 0V2m0 3l3-3m-3 3l-3-3" />
+                      </svg>
+                      रीसेट
+                    </button>
                   </div>
                 </div>
               </div>
@@ -351,9 +619,23 @@ export default function NominatePage() {
                 </form>
               </div>
             </div>
+
+            {/* ── Mobile auto-save status (below form card) ── */}
+            {savedAtLabel && (
+              <div className="lg:hidden mt-4 flex items-center justify-center gap-2 text-center px-4 py-2.5 bg-[#f0fdf4] border border-[#86efac]/60 rounded-xl">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-60" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
+                </span>
+                <span className="text-[11.5px] font-medium text-green-700" style={{ fontFamily: 'Noto Sans Devanagari, sans-serif' }}>
+                  {savedAtLabel} · आपका डेटा सुरक्षित है
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <DevFillButton setValue={setValue} setStep={setStep} reset={reset} />
     </>
   );
 }
